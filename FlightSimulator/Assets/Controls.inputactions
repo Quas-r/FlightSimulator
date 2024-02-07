@@ -86,6 +86,39 @@
                     "isPartOfComposite": true
                 },
                 {
+                    "name": "Shift/Ctrl",
+                    "id": "43e66639-db7c-4c19-8335-6753062ef6ae",
+                    "path": "1DAxis",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Thrust",
+                    "isComposite": true,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "negative",
+                    "id": "59d04896-37ae-439b-99f7-d51f0f906c5b",
+                    "path": "<Keyboard>/ctrl",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Thrust",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "positive",
+                    "id": "facbd907-d4f0-4ac8-b0ae-2cc078427d08",
+                    "path": "<Keyboard>/shift",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Thrust",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
                     "name": "",
                     "id": "6cfaed36-5fe6-4895-8206-114ce1798b59",
                     "path": "<HID::Logitech Logitech Dual Action>/stick",

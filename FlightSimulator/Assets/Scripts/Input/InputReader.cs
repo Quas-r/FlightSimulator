@@ -17,28 +17,34 @@ public class InputReader : ScriptableObject, Controls.IPlaneActions
         }
     }
 
+    public event Action<Vector2> CameraEvent;
+    public event Action<Vector2> RollPitchEvent;
     public event Action<float> ThrustEvent;
+    public event Action FlapsEvent;
+    public event Action<float> YawEvent;
 
     public void OnCamera(InputAction.CallbackContext context)
     {
-        Debug.Log("Test");
+        CameraEvent.Invoke(context.ReadValue<Vector2>());
     }
 
     public void OnRollPitch(InputAction.CallbackContext context)
     {
-        Debug.Log($"Action: RollPitch, Phase: {context.phase}, Input: {context.ReadValue<Vector2>()}");
+        RollPitchEvent.Invoke(context.ReadValue<Vector2>());
     }
 
     public void OnThrust(InputAction.CallbackContext context)
     {
-        ThrustEvent?.Invoke(context.ReadValue<float>());
+        ThrustEvent.Invoke(context.ReadValue<float>());
     }
 
     public void OnToggleFlaps(InputAction.CallbackContext context)
     {
+        FlapsEvent.Invoke();
     }
 
     public void OnYaw(InputAction.CallbackContext context)
     {
+        YawEvent.Invoke(context.ReadValue<float>());
     }
 }
