@@ -10,4 +10,23 @@ public static class Helper
         return Mathf.Clamp(value + delta, min, max);
     } 
 
+    public static Vector3 Scale6(
+        Vector3 vector,
+        float posx, float negx,
+        float posy, float negy,
+        float posz, float negz
+    ) {
+        Vector3 result = vector;
+
+        if (vector.x < 0) { result.x *= negx; } 
+        else { result.x *= posx; }
+
+        if (vector.y < 0) { result.y *= negy; } 
+        else { result.y *= posy; }
+
+        if (vector.z < 0) { result.z *= negz; } 
+        else { result.z *= posz; }
+
+        return result;
+    }
 }
