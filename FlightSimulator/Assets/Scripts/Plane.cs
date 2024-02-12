@@ -38,6 +38,12 @@ public class Plane : MonoBehaviour
     AnimationCurve dragForward;
     [SerializeField]
     AnimationCurve dragBackward;
+    [SerializeField]
+    AnimationCurve steeringCurve;
+    [SerializeField]
+    Vector3 turnSpeed;
+    [SerializeField]
+    Vector3 turnAcceleration;
     Rigidbody rb;
     Vector3 velocity;
     Vector3 localVelocity;
@@ -46,6 +52,7 @@ public class Plane : MonoBehaviour
     Vector3 localGForce;
     float angleOfAttack;
     float angleOfAttackYaw;
+    Vector3 controlInput;
     float thrustInput;
     float thrustValue;
 
@@ -54,6 +61,8 @@ public class Plane : MonoBehaviour
     {
         rb = gameObject.GetComponent<Rigidbody>();
         inputReader.ThrustEvent += HandleThrustInput;
+        inputReader.RollPitchEvent += HandleRollPitchInput;
+        inputReader.YawEvent += HandleYawInput;
 
         // Add very small torque to the wheels in order to work around a bug
         foreach (WheelCollider w in GetComponentsInChildren<WheelCollider>())
@@ -75,6 +84,16 @@ public class Plane : MonoBehaviour
     private void HandleThrustInput(float thrustInputRead)
     {
         thrustInput = thrustInputRead;
+    }
+
+    private void HandleRollPitchInput(Vector2 rollPitchInputRead)
+    {
+        controlInput = new Vector3(rollPitchInputRead.y, controlInput.y, -rollPitchInputRead.x);
+    }
+
+    private void HandleYawInput(float yawInputRead)
+    {
+        controlInput = new Vector3(controlInput.x, yawInputRead, controlInput.z);
     }
 
     private void UpdateThrottle(float dt)
@@ -113,7 +132,7 @@ public class Plane : MonoBehaviour
 
     private void CalculateAngleOfAttack()
     {
-        angleOfAttack = Mathf.Atan2(localVelocity.y, localVelocity.z);
+        angleOfAttack = Mathf.Atan2(-localVelocity.y, localVelocity.z);
         angleOfAttackYaw = Mathf.Atan2(localVelocity.x, localVelocity.z);
     }
 
@@ -147,7 +166,7 @@ public class Plane : MonoBehaviour
     {
         float lvSquared = localVelocity.sqrMagnitude;
         Vector3 dragCoefficient = Helper.Scale6(
-            localVelocity,
+            localVelocity.normalized,
             dragRight.Evaluate(Mathf.Abs(localVelocity.x)),
             dragLeft.Evaluate(Mathf.Abs(localVelocity.x)),
             dragTop.Evaluate(Mathf.Abs(localVelocity.y)),
@@ -161,6 +180,30 @@ public class Plane : MonoBehaviour
         rb.AddRelativeForce(dragForce);
     }
 
+    private void UpdateSteering(float dt)
+    {
+        float speed = Mathf.Max(0, localVelocity.z);
+        float steeringPower = steeringCurve.Evaluate(speed);
+
+        Vector3 targetAV = Vector3.Scale(controlInput, steeringPower * turnSpeed);
+        Vector3 angularVelocity = localAngularVelocity * Mathf.Rad2Deg;
+
+        Vector3 correction = new Vector3(
+            CalculateSteering(dt, angularVelocity.x, targetAV.x, turnAcceleration.x * steeringPower),
+            CalculateSteering(dt, angularVelocity.y, targetAV.y, turnAcceleration.y * steeringPower),
+            CalculateSteering(dt, angularVelocity.z, targetAV.z, turnAcceleration.z * steeringPower)
+        );
+
+        rb.AddRelativeTorque(correction * Mathf.Deg2Rad, ForceMode.VelocityChange);
+    }
+
+    private float CalculateSteering(float dt, float angularVelocity, float targetVelocity, float acceleration)
+    {
+        float error = targetVelocity - angularVelocity;
+        float acc = acceleration * dt;
+        return Mathf.Clamp(error, -acc, acc);
+    }
+
     // Update is called once per frame
     void FixedUpdate()
     {
@@ -170,7 +213,8 @@ public class Plane : MonoBehaviour
         ApplyThrottle();
         UpdateLift();
         UpdateDrag();
-        //Debug.Log(rb.velocity.magnitude);
+        UpdateSteering(Time.deltaTime);
+        Debug.Log(rb.velocity.magnitude);
     }
 
 }
