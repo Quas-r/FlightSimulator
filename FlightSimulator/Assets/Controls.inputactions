@@ -218,6 +218,39 @@
                     "isPartOfComposite": true
                 },
                 {
+                    "name": "Q/E",
+                    "id": "ff72806d-db73-437b-893d-0c532b4f51bd",
+                    "path": "1DAxis",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Yaw",
+                    "isComposite": true,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "negative",
+                    "id": "169c7d7f-2ce0-422a-a392-3257d73c2dd7",
+                    "path": "<Keyboard>/q",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Yaw",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "positive",
+                    "id": "6c448c03-42d7-4141-b0b5-2cddc39f0731",
+                    "path": "<Keyboard>/e",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Yaw",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
                     "name": "Controller Right Stick",
                     "id": "5e170fa1-6c32-40c0-98f6-53ae25ca0e5c",
                     "path": "2DVector(mode=2)",
