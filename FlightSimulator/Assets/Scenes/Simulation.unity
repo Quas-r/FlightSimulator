@@ -1947,7 +1947,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4155046195482119558, guid: 05868fab2d415b84abdc41e4d376b804, type: 3}
       propertyPath: m_Name
-      value: Rafale
+      value: Plane
       objectReference: {fileID: 0}
     - target: {fileID: 7868922792420797491, guid: 05868fab2d415b84abdc41e4d376b804, type: 3}
       propertyPath: m_Enabled
