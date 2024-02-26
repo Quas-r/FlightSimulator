@@ -307,6 +307,17 @@
                 },
                 {
                     "name": "",
+                    "id": "f8554964-e379-4479-a38b-8ba41d685e1c",
+                    "path": "<Mouse>/delta",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Camera",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
                     "id": "52ee061e-58bc-45b3-9ec2-770647f78895",
                     "path": "<Joystick>/trigger",
                     "interactions": "",
