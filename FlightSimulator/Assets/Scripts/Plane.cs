@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class Plane : MonoBehaviour
 {
@@ -45,16 +46,19 @@ public class Plane : MonoBehaviour
     Vector3 localVelocity;
     Vector3 lastVelocity;
     Vector3 localAngularVelocity;
-    Vector3 localGForce;
+    static Vector3 localGForce;
+    static float gForce;
     float angleOfAttack;
     float angleOfAttackYaw;
     Vector3 controlInput;
     float thrustInput;
     float thrustValue;
+    
 
     // Start is called before the first frame update
     void Start()
     {
+        
         rb = gameObject.GetComponent<Rigidbody>();
         inputReader.ThrustEvent += HandleThrustInput;
         inputReader.RollPitchEvent += HandleRollPitchInput;
@@ -156,7 +160,46 @@ public class Plane : MonoBehaviour
         Vector3 acceleration = (velocity - lastVelocity) / dt;
         localGForce = invRotation * acceleration;
         lastVelocity = velocity;
+        gForce = localGForce.y /  9.81f;
+        if (gForce > 9.0f && transform.position.y > 3.0f)
+        {
+            
+            StartNewGame();
+
+        }
     }
+
+    public void DetectCollision()
+    {
+        RaycastHit hit;
+        float raycastDistance = 10.0f; 
+
+        if (Physics.Raycast(transform.position, Vector3.down, out hit, raycastDistance))
+        {
+            
+            if (hit.collider.CompareTag("Ground")) 
+            {
+
+                StartNewGame();
+              
+               
+            }
+        }
+    }
+
+    public void StartNewGame()
+    {
+        int activeSceneIndex = SceneManager.GetActiveScene().buildIndex;
+        SceneManager.LoadScene(activeSceneIndex);
+    }
+
+
+    public static float GetLocalGForce()
+    {
+  
+        return gForce;
+    }
+
 
     private void UpdateDrag()
     {
@@ -203,6 +246,7 @@ public class Plane : MonoBehaviour
     // Update is called once per frame
     void FixedUpdate()
     {
+        
         CalculateState();
         CalculateGForce(Time.deltaTime);
         UpdateThrottle(Time.deltaTime);
@@ -210,6 +254,7 @@ public class Plane : MonoBehaviour
         UpdateLift();
         UpdateDrag();
         UpdateSteering(Time.deltaTime);
+        DetectCollision();
         Debug.Log(rb.velocity.magnitude);
     }
 
