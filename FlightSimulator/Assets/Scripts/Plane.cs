@@ -255,7 +255,7 @@ public class Plane : MonoBehaviour
         UpdateDrag();
         UpdateSteering(Time.deltaTime);
         DetectCollision();
-        Debug.Log(rb.velocity.magnitude);
+        //Debug.Log(rb.velocity.magnitude);
     }
 
 }
