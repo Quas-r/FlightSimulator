@@ -53,6 +53,7 @@ public class Plane : MonoBehaviour
     Vector3 controlInput;
     float thrustInput;
     float thrustValue;
+    Sender sender;
     
 
     // Start is called before the first frame update
@@ -60,9 +61,13 @@ public class Plane : MonoBehaviour
     {
         
         rb = gameObject.GetComponent<Rigidbody>();
+        sender = gameObject.GetComponent<Sender>();
         inputReader.ThrustEvent += HandleThrustInput;
         inputReader.RollPitchEvent += HandleRollPitchInput;
         inputReader.YawEvent += HandleYawInput;
+        sender.ThrustEvent += HandleThrustInput;
+        sender.RollPitchEvent += HandleRollPitchInput;
+        sender.YawEvent += HandleYawInput;
 
         // Add very small torque to the wheels in order to work around a bug
         foreach (WheelCollider w in GetComponentsInChildren<WheelCollider>())
@@ -81,17 +86,17 @@ public class Plane : MonoBehaviour
         CalculateAngleOfAttack();
     }
 
-    private void HandleThrustInput(float thrustInputRead)
+    public void HandleThrustInput(float thrustInputRead)
     {
         thrustInput = thrustInputRead;
     }
 
-    private void HandleRollPitchInput(Vector2 rollPitchInputRead)
+    public void HandleRollPitchInput(Vector2 rollPitchInputRead)
     {
         controlInput = new Vector3(rollPitchInputRead.y, controlInput.y, -rollPitchInputRead.x);
     }
 
-    private void HandleYawInput(float yawInputRead)
+    public void HandleYawInput(float yawInputRead)
     {
         controlInput = new Vector3(controlInput.x, yawInputRead, controlInput.z);
     }
