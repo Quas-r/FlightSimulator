@@ -16,48 +16,22 @@ keys_pressed = {"a": False,
                 "shift": False,
                 "ctrl": False}
 
+def apply_key(key_value, apply_value: bool):
+    global keys_pressed
+    if key_value in keys_pressed:
+        keys_pressed[key_value] = apply_value
 
 def on_press(key):
-    global keys_pressed
     try:
-        if key.char == "a":
-            keys_pressed["a"] = True
-        elif key.char == "d":
-            keys_pressed["d"] = True
-        elif key.char == "w":
-            keys_pressed["w"] = True
-        elif key.char == "s":
-            keys_pressed["s"] = True
-        elif key.char == "q":
-            keys_pressed["q"] = True
-        elif key.char == "e":
-            keys_pressed["e"] = True
+        apply_key(key.char, True)
     except AttributeError:
-        if key.name == "shift":
-            keys_pressed["shift"] = True
-        elif key.name == "ctrl":
-            keys_pressed["ctrl"] = True
+        apply_key(key.name, True)
 
 def on_release(key):
-    global keys_pressed
     try:
-        if key.char == "a":
-            keys_pressed["a"] = False
-        elif key.char == "d":
-            keys_pressed["d"] = False
-        elif key.char == "w":
-            keys_pressed["w"] = False
-        elif key.char == "s":
-            keys_pressed["s"] = False
-        elif key.char == "q":
-            keys_pressed["q"] = False
-        elif key.char == "e":
-            keys_pressed["e"] = False
+        apply_key(key.char, False)
     except AttributeError:
-        if key.name == "shift":
-            keys_pressed["shift"] = False
-        elif key.name == "ctrl":
-            keys_pressed["ctrl"] = False
+        apply_key(key.name, False)
 
 def process_keys_pressed(keys_pressed, inp) -> bool:
     changed = True
