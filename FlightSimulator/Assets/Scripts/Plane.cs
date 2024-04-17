@@ -190,10 +190,16 @@ public class Plane : MonoBehaviour
                
             }
         }
-    }
+}
 
     public void StartNewGame()
     {
+        
+        if (sender.connected)
+        {
+            sender.gameNotOver = false;
+            while (!sender.gameNotOver); // Stupid
+        }
         int activeSceneIndex = SceneManager.GetActiveScene().buildIndex;
         SceneManager.LoadScene(activeSceneIndex);
     }

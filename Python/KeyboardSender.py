@@ -58,22 +58,24 @@ def process_keys_pressed(keys_pressed, inp) -> bool:
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     s.bind((HOST, PORT))
     s.listen()
-    conn, addr = s.accept()
     listener = keyboard.Listener(on_press=on_press, on_release=on_release)
     listener.start()
-    with conn:
-        inp = {"thrust": 0.00,
-               "rollPitch": [0.00, 0.00],
-               "yaw": 0.00,
-               "toggleFlaps": 0}
-        while True:
-            changed = process_keys_pressed(keys_pressed, inp)
-            if changed:
-                data = json.dumps(inp)
-                conn.sendall(bytes(data, "utf-8"))
-                conn.recv(9)
-                inp = {"thrust": 0.00,
-                       "rollPitch": [0.00, 0.00],
-                       "yaw": 0.00,
-                       "toggleFlaps": 0}
-    listener.join()
+    while True:
+        conn, addr = s.accept()
+        with conn:
+            inp = {"thrust": 0.00,
+                   "rollPitch": [0.00, 0.00],
+                   "yaw": 0.00,
+                   "toggleFlaps": 0}
+            while True:
+                changed = process_keys_pressed(keys_pressed, inp)
+                if changed:
+                    data = json.dumps(inp)
+                    conn.sendall(bytes(data, "utf-8"))
+                    response = conn.recv(9)
+                    if response.decode("utf-8") == "ENDGAME":
+                        break
+                    inp = {"thrust": 0.00,
+                           "rollPitch": [0.00, 0.00],
+                           "yaw": 0.00,
+                           "toggleFlaps": 0}

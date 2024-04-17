@@ -25,9 +25,11 @@ public class Sender : MonoBehaviour
     private TcpClient client;
     private string serverIp = "127.0.0.1"; // Python TCP sunucusunun IP adresi
     private int port = 8888; // TCP baðlantý noktasý
-    private bool connected = false;
+    public bool connected = false;
     private Plane planeScript;
     public InputFromTcp input = new InputFromTcp();
+    public bool gameNotOver = true;
+    public bool responded = false;
 
     public event Action<Vector2> RollPitchEvent;
     public event Action<float> ThrustEvent;
@@ -121,10 +123,18 @@ public class Sender : MonoBehaviour
         try
         {
             byte[] buffer = new byte[1024];
+            byte[] data;
             int bytesRead = client.GetStream().Read(buffer, 0, buffer.Length);
             string receivedData = Encoding.ASCII.GetString(buffer, 0, bytesRead);
-            byte[] data = Encoding.ASCII.GetBytes("Thank you");
+            if (gameNotOver)
+            {
+                data = Encoding.ASCII.GetBytes("CONGAME");
+            } else
+            {
+                data = Encoding.ASCII.GetBytes("ENDGAME");
+            }
             client.GetStream().Write(data, 0, data.Length);
+            this.gameNotOver = true; // Not smart but whatever
             return receivedData;
         }
         catch (Exception e)
