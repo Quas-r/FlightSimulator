@@ -81,6 +81,16 @@ class DQNNetwork(object):
             else:
                 return torch.tensor([[generate_random_action()]], device=device, dtype=torch.long)
 
+        def optimize_model():
+
+            if len(self.buffer) < BATCH_SIZE:
+                return
+            transitions = self.buffer.sample(batch_size=BATCH_SIZE)
+            batch = Transition(*zip(*transitions))
+
+        
+
+
 
 def generate_random_action():
 
