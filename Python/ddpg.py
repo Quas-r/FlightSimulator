@@ -54,7 +54,7 @@ class DDPG(object):
         hard_update(self.actor_target, self.actor)
         hard_update(self.critic_target, self.critic)
 
-    def calculate_action(self, state, action_noise=None):
+    def train_model(self, state, action_noise=None):
 
         x = state.to(device)
 

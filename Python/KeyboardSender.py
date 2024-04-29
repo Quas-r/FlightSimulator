@@ -16,10 +16,12 @@ keys_pressed = {"a": False,
                 "shift": False,
                 "ctrl": False}
 
+
 def apply_key(key_value, apply_value: bool):
     global keys_pressed
     if key_value in keys_pressed:
         keys_pressed[key_value] = apply_value
+
 
 def on_press(key):
     try:
@@ -27,11 +29,13 @@ def on_press(key):
     except AttributeError:
         apply_key(key.name, True)
 
+
 def on_release(key):
     try:
         apply_key(key.char, False)
     except AttributeError:
         apply_key(key.name, False)
+
 
 def process_keys_pressed(keys_pressed, inp) -> bool:
     changed = True
@@ -54,6 +58,7 @@ def process_keys_pressed(keys_pressed, inp) -> bool:
     else:
         changed = False
     return changed
+
 
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     s.bind((HOST, PORT))

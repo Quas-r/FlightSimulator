@@ -3,16 +3,14 @@ import numpy as np
 import torch
 import math
 from torch import nn
-from torch.cuda import is_available
 import torch.optim as optim
 import torch.nn.functional as F
 from collections import namedtuple, deque
-from typing import Deque, List
 
-#TODO -> Plotting
+# TODO -> Plotting
 
-INPUT_SIZE = 10 #TODO
-OUTPUT_SIZE = 4 #TODO
+INPUT_SIZE = 10  # TODO
+OUTPUT_SIZE = 4  # TODO
 BUFFER_SIZE = 10000
 BATCH_SIZE = 128
 GAMMA = 0.98
@@ -87,9 +85,6 @@ class DQNNetwork(object):
                 return
             transitions = self.buffer.sample(batch_size=BATCH_SIZE)
             batch = Transition(*zip(*transitions))
-
-        
-
 
 
 def generate_random_action():
