@@ -18,6 +18,7 @@ public class RewardCalculator : MonoBehaviour
 
     public static float CalculateReward(Transform civilianTransform, Transform enemyTransform, float velocity, float gForce)
     {
+        Debug.Log("Reward hesaplanýyor");
         Vector3 los = civilianTransform.position - enemyTransform.position;
         float distance = los.magnitude;
 

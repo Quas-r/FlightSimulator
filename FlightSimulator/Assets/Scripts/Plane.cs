@@ -42,7 +42,7 @@ public class Plane : MonoBehaviour
     [SerializeField]
     Vector3 turnAcceleration;
     Rigidbody rb;
-    Vector3 velocity;
+    static Vector3 velocity;
     Vector3 localVelocity;
     Vector3 lastVelocity;
     Vector3 localAngularVelocity;
@@ -54,7 +54,14 @@ public class Plane : MonoBehaviour
     float thrustInput;
     float thrustValue;
     Sender sender;
-    
+
+    public static Vector3 GetVelocity()
+    {
+
+        return velocity;
+    }
+
+
 
     // Start is called before the first frame update
     void Start()

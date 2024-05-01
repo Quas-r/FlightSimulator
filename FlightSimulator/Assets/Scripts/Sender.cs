@@ -2,8 +2,13 @@ using System;
 using System.Collections;
 using System.Net.Sockets;
 using System.Text;
+using System.Text.Json;
 using System.Threading;
 using UnityEngine;
+using static UnityEditor.FilePathAttribute;
+using UnityEngine.UIElements;
+using Palmmedia.ReportGenerator.Core.Common;
+//using System.Numerics;
 
 public class InputFromTcp
 {
@@ -35,9 +40,39 @@ public class Sender : MonoBehaviour
     public event Action<float> ThrustEvent;
     public event Action<float> YawEvent;
 
+    Vector3 planePosition;
+    Quaternion planeRotation;
+    Vector3 planeEulerRotation;
+    Vector3 planeVelocity;
+    float planeGForce;
+
+    public GameObject cube;
+    Vector3 cubePosition;
+    Quaternion cubeRotation;
+    Vector3 cubeEulerRotation;
+    Vector3 cubeVelocity;
+    float cubeGForce;
+
+
+    float reward;
+
+
     void Start()
     {
         planeScript = gameObject.GetComponent<Plane>();
+        planePosition = planeScript.transform.position;
+        planeRotation = planeScript.transform.rotation;
+        planeEulerRotation = planeRotation.eulerAngles;
+        planeVelocity = Plane.GetVelocity();
+        planeGForce = Plane.GetLocalGForce();
+
+       
+        cubePosition = cube.transform.position;
+        cubeRotation = cube.transform.rotation;
+        cubeEulerRotation = cubeRotation.eulerAngles;
+        cubeVelocity = Plane.GetVelocity();
+        cubeGForce = Plane.GetLocalGForce();
+
         ConnectToServer();
     }
 
@@ -122,19 +157,75 @@ public class Sender : MonoBehaviour
     {
         try
         {
+          
+
             byte[] buffer = new byte[1024];
-            byte[] data;
+            byte[] jsonData;
             int bytesRead = client.GetStream().Read(buffer, 0, buffer.Length);
             string receivedData = Encoding.ASCII.GetString(buffer, 0, bytesRead);
+            
             if (gameNotOver)
             {
-                data = Encoding.ASCII.GetBytes("CONGAME");
+                
+                var data = new
+                {
+                    planePositionx = planePosition.x,
+                    planePositiony = planePosition.y,
+                    planePositionz = planePosition.z,
+                    planeEulerRotationx = planeEulerRotation.x,
+                    planeEulerRotationy = planeEulerRotation.y,
+                    planeEulerRotationz = planeEulerRotation.z,
+                    planeVelocity = planeVelocity.y,
+                    planeGForce = planeGForce,
+                    cubePositionx = cubePosition.x,
+                    cubePositiony = cubePosition.y,
+                    cubePositionz = cubePosition.z,
+                    cubeEulerRotationx = cubeEulerRotation.x,
+                    cubeEulerRotationy = cubeEulerRotation.y,
+                    cubeEulerRotationz = cubeEulerRotation.z,
+                    cubeVelocity = cubeVelocity.y,
+                    cubeGForce = cubeGForce,
+                    endGame = "CONGAME",
+                    reward = reward,
+
+                };
+                string json = JsonSerializer.ToJsonString(data);
+                Debug.Log("JSON Output: " + json);
+                //data = Encoding.ASCII.GetBytes("CONGAME");
+                jsonData = Encoding.ASCII.GetBytes(json);
             } else
             {
-                data = Encoding.ASCII.GetBytes("ENDGAME");
+      
+                var data = new
+                {
+                    planePositionx = planePosition.x,
+                    planePositiony = planePosition.y,
+                    planePositionz = planePosition.z,
+                    planeEulerRotationx = planeEulerRotation.x,
+                    planeEulerRotationy = planeEulerRotation.y,
+                    planeEulerRotationz = planeEulerRotation.z,
+                    planeVelocity = planeVelocity.y,
+                    planeGForce = planeGForce,
+                    cubePositionx = cubePosition.x,
+                    cubePositiony = cubePosition.y,
+                    cubePositionz = cubePosition.z,
+                    cubeEulerRotationx = cubeEulerRotation.x,
+                    cubeEulerRotationy = cubeEulerRotation.y,
+                    cubeEulerRotationz = cubeEulerRotation.z,
+                    cubeVelocity = cubeVelocity.y,
+                    cubeGForce = cubeGForce,
+                    endGame = "ENDGAME",
+                    reward = reward,
+
+                };
+                string json = JsonUtility.ToJson(data);
+                //data = Encoding.ASCII.GetBytes("ENDGAME");
+                jsonData = Encoding.ASCII.GetBytes(json);
             }
-            client.GetStream().Write(data, 0, data.Length);
+            client.GetStream().Write(jsonData, 0, jsonData.Length);
             this.gameNotOver = true; // Not smart but whatever
+            Debug.Log("Gönderilen JSON Boyutu: " + jsonData.Length);
+            Debug.Log(receivedData);
             return receivedData;
         }
         catch (Exception e)
@@ -166,6 +257,22 @@ public class Sender : MonoBehaviour
 
     void FixedUpdate()
     {
+        planeScript = gameObject.GetComponent<Plane>();
+        planePosition = planeScript.transform.position;
+        planeRotation = planeScript.transform.rotation;
+        planeEulerRotation = planeRotation.eulerAngles;
+        planeVelocity = Plane.GetVelocity();
+        planeGForce = Plane.GetLocalGForce();
+
+
+        cubePosition = cube.transform.position;
+        cubeRotation = cube.transform.rotation;
+        cubeEulerRotation = cubeRotation.eulerAngles;
+        cubeVelocity = Plane.GetVelocity();
+        cubeGForce = Plane.GetLocalGForce();
+
+
+        reward = RewardCalculator.CalculateReward(gameObject.transform, cube.transform, cubeVelocity.y, cubeGForce);
         ProcessReceivedDataFromExternalKeyboardWhichWillEventuallyBeGivenFromOurDeepQLearningModel(input);
     }
 }

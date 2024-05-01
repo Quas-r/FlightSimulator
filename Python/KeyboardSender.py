@@ -2,8 +2,14 @@ from pynput import keyboard
 import socket
 import json
 
+import torch
+from DQNNetwork import DQNNetwork
+from action_space_dqn import ActionSpaceDQN
+from state import State
+
 HOST = "127.0.0.1"
 PORT = 8888
+TAU = 0.005
 
 changed = False
 
@@ -61,26 +67,134 @@ def process_keys_pressed(keys_pressed, inp) -> bool:
 
 
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-    s.bind((HOST, PORT))
-    s.listen()
-    listener = keyboard.Listener(on_press=on_press, on_release=on_release)
-    listener.start()
+
+    # listener = keyboard.Listener(on_press=on_press, on_release=on_release)
+    # listener.start()
+
+    try:
+        s.bind((HOST, PORT))
+        s.listen()
+        print("Server başlatıldı, bağlantı bekleniyor...")
+    except socket.error as e:
+        print(f"Sunucu başlatma hatası: {e}")
+
     while True:
         conn, addr = s.accept()
         with conn:
+
             inp = {"thrust": 0.00,
                    "rollPitch": [0.00, 0.00],
                    "yaw": 0.00,
                    "toggleFlaps": 0}
+
+            # /////////////////////
+
+            if torch.backends.mps.is_available():
+                device = torch.device("mps")
+            elif torch.cuda.is_available():
+                device = torch.device("cuda")
+            else:
+                device = torch.device("cpu")
+
+            # model olusturma
+            state = State(device=device)  # TODO
+            observation = State(device=device)  # TODO
+
+            actions = ActionSpaceDQN()
+
+            input_size = state.__len__()
+            output_size = actions.__len__()
+
+            model = DQNNetwork(input_size=input_size, output_size=output_size, device=device)
+
+            # TODO
+            # Model ağırlıkları yüklenecek
+            # model.load_model()
+
+            received_data = conn.recv(1024)
+            received_data = received_data.decode('utf-8')
+            data_dict = json.loads(received_data)
+            state.update_state(data_dict, device=device)
+
             while True:
-                changed = process_keys_pressed(keys_pressed, inp)
-                if changed:
-                    data = json.dumps(inp)
-                    conn.sendall(bytes(data, "utf-8"))
-                    response = conn.recv(9)
-                    if response.decode("utf-8") == "ENDGAME":
-                        break
-                    inp = {"thrust": 0.00,
-                           "rollPitch": [0.00, 0.00],
-                           "yaw": 0.00,
-                           "toggleFlaps": 0}
+
+                action = model.select_action(state.get_state_tensor(), actions, device=device)
+
+                # TODO
+                # Unity tarafına veri gönderilecek action
+                data_to_send = json.dumps(str(action.item()))
+                conn.sendall(bytes(data_to_send, "utf-8"))
+
+                # TODO
+                # Unity tarafındna veri alınacak
+                received_data = conn.recv(1024)
+                received_data = received_data.decode('utf-8')
+                data_dict = json.loads(received_data)
+
+                observation = observation.update_state(data_dict, device=device)
+                reward = data_dict["reward"]
+                terminated = data_dict["endGame"]
+
+                reward = torch.tensor([reward], device=device)
+
+                if terminated:
+                    next_state = None
+                else:
+                    next_state = observation
+
+                model.buffer.push(state, action, next_state, reward)
+
+                state = next_state
+
+                model.optimize_model(device=device)
+
+                target_net_state_dict = model.target_net.state_dict()
+                policy_net_state_dict = model.policy_net.state_dict()
+                for key in policy_net_state_dict:
+                    target_net_state_dict[key] = policy_net_state_dict[key] * TAU + target_net_state_dict[key] * (
+                                1 - TAU)
+                model.target_net.load_state_dict(target_net_state_dict)
+
+                # TODO
+                # Modelin ağırlıkları kaydedilecek
+                # model.save_model()
+
+                if next_state is None:
+                    break
+
+                # ////////////////////////////////
+
+                # changed = process_keys_pressed(keys_pressed, inp)
+                # if changed:
+                #     data = json.dumps(inp)
+                #     conn.sendall(bytes(data, "utf-8"))
+                #     response = conn.recv(9)
+                #     response = response.decode('utf-8')
+                #     data_dict = json.loads(response)
+                #     if data_dict["endgame"] == "EDNGAME":
+                #         break
+                #     inp = {"thrust": 0.00,
+                #            "rollPitch": [0.00, 0.00],
+                #            "yaw": 0.00,
+                #            "toggleFlaps": 0}
+
+                # data_to_send = json.dumps(inp)
+                # conn.sendall(bytes(data_to_send, "utf-8"))
+                # received_data = conn.recv(1024)
+                #
+                # if not received_data:
+                #     print("Bağlantı kapatıldı.")
+                #     break
+                #
+                # received_data = received_data.decode('utf-8')
+                # data_dict = json.loads(received_data)
+                #
+                # state = State()
+                # next_state = state.update_state(data_dict)
+                # print(next_state)
+                # reward = data_dict["reward"]
+                # print(reward)
+                #
+                #
+                # if data_dict["endGame"] == "EDNGAME":
+                #     print("Oyunun sonlandırılması istendi.")
