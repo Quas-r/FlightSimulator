@@ -120,9 +120,16 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
 
                 action = model.select_action(state.get_state_tensor(), actions, device=device)
 
+                inp = {
+                    "thrust": action[0].item(),
+                    "rollPitch": [action[1].item(), action[2].item()],
+                    "yaw": action[3].item(),
+                    "toggleFlaps": 0
+                }
+
                 # TODO
                 # Unity tarafına veri gönderilecek action
-                data_to_send = json.dumps(str(action.item()))
+                data_to_send = json.dumps(inp)
                 conn.sendall(bytes(data_to_send, "utf-8"))
 
                 # TODO
