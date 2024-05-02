@@ -3,7 +3,7 @@ import torch
 
 class State(object):
     def __init__(self, device):
-        self.state = torch.zeros(18, device=device)
+        self.state = torch.zeros(16, device=device)
 
     def update_state(self, json_data, device):
 
@@ -29,4 +29,5 @@ class State(object):
         return self.state
 
     def __len__(self):
-        return self.state.size(dim=1)
+        print(self.state.size(dim=0))
+        return self.state.size(dim=0)

@@ -106,32 +106,45 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             output_size = actions.__len__()
 
             model = DQNNetwork(input_size=input_size, output_size=output_size, device=device)
+            print(model)
 
             # TODO
             # Kayıtlı model var mı kontrol edilecek
             # Model ağırlıkları yüklenecek
             # model.load_model()
 
+            data_to_send = json.dumps(inp)
+            conn.sendall(bytes(data_to_send, "utf-8"))
+
             received_data = conn.recv(1024)
             received_data = received_data.decode('utf-8')
+            print(received_data)
             data_dict = json.loads(received_data)
             state.update_state(data_dict, device=device)
+            print(state.get_state_tensor())
 
             while True:
 
                 action = model.select_action(state.get_state_tensor(), actions, device=device)
 
+                print(action)
+
                 inp = {
-                    "thrust": action[0].item(),
-                    "rollPitch": [action[1].item(), action[2].item()],
-                    "yaw": action[3].item(),
+                    "thrust": action[0][0].item(),
+                    "rollPitch": [action[0][1].item(), action[0][2].item()],
+                    "yaw": action[0][3].item(),
                     "toggleFlaps": 0
                 }
+
+                print(inp)
 
                 # TODO
                 # Unity tarafına veri gönderilecek action
                 data_to_send = json.dumps(inp)
                 conn.sendall(bytes(data_to_send, "utf-8"))
+                print(data_to_send)
+
+                print("veri gönderdi")
 
                 # TODO
                 # Unity tarafındna veri alınacak

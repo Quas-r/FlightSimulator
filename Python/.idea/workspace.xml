@@ -5,20 +5,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="820ac1fb-d3c4-43d8-9831-59e60145e3bc" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/action_space_dqn.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../FlightSimulator/Assets/Scenes/Simulation.unity" beforeDir="false" afterPath="$PROJECT_DIR$/../FlightSimulator/Assets/Scenes/Simulation.unity" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../FlightSimulator/Assets/Scripts/Plane.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../FlightSimulator/Assets/Scripts/Plane.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../FlightSimulator/Assets/Scripts/Sender.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../FlightSimulator/Assets/Scripts/Sender.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/Python.iml" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/DQNNetwork.py" beforeDir="false" afterPath="$PROJECT_DIR$/DQNNetwork.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/KeyboardSender.py" beforeDir="false" afterPath="$PROJECT_DIR$/KeyboardSender.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/action_space.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ddpg.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/nets.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/noise.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/replay_buffer.py" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/state.py" beforeDir="false" afterPath="$PROJECT_DIR$/state.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/train.py" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

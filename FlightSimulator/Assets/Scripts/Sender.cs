@@ -97,6 +97,7 @@ public class Sender : MonoBehaviour
         while (connected)
         {
             string keyboardData = ReceiveData();
+            Debug.Log(keyboardData);
             this.input = JsonUtility.FromJson<InputFromTcp>(keyboardData);
         }
     }

@@ -78,7 +78,8 @@ class DQNNetwork(object):
                 # Float yerine int mantıklı olabilir mi?
                 return torch.tensor([action_space.actions[self.policy_net(state).max(1).indices]], device=device, dtype=torch.long)
         else:
-            return torch.tensor([[action_space.select_random_action]], device=device, dtype=torch.long)
+            action_np = np.array([action_space.select_random_action()])
+            return torch.tensor(action_np, device=device, dtype=torch.long)
 
     def optimize_model(self, device):
 
