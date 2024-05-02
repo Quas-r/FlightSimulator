@@ -152,9 +152,13 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
                 received_data = received_data.decode('utf-8')
                 data_dict = json.loads(received_data)
 
-                observation = observation.update_state(data_dict, device=device)
+                observation.update_state(data_dict, device=device)
                 reward = data_dict["reward"]
-                terminated = data_dict["endGame"]
+                if data_dict["endGame"] == "CONGAME":
+                    terminated = False
+                else:
+                    terminated = True
+                print(data_dict["endGame"])
 
                 reward = torch.tensor([reward], device=device)
 
