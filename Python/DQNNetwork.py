@@ -68,15 +68,15 @@ class DQNNetwork(object):
 
         self.steps_done = 0
 
-    def select_action(self, state, actions, device):
+    def select_action(self, state, action_space, device):
         probability = random.random()
         eps_threshold = EPS_END + (EPS_START - EPS_END) * math.exp(-1. * self.steps_done / EPS_DECAY)
         self.steps_done += 1
         if probability > eps_threshold:
             with torch.no_grad():
-                return self.policy_net(state).max(1).indices.view(1, 1)
+                return torch.tensor([action_space.actions[self.policy_net(state).max(1).indices]], device=device, dtype=torch.long)
         else:
-            return torch.tensor([[actions.select_random_action]], device=device, dtype=torch.long)
+            return torch.tensor([[action_space.select_random_action]], device=device, dtype=torch.long)
 
     def optimize_model(self, device):
 
