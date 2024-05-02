@@ -108,6 +108,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             model = DQNNetwork(input_size=input_size, output_size=output_size, device=device)
 
             # TODO
+            # Kayıtlı model var mı kontrol edilecek
             # Model ağırlıkları yüklenecek
             # model.load_model()
 
@@ -162,11 +163,11 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
                                 1 - TAU)
                 model.target_net.load_state_dict(target_net_state_dict)
 
-                # TODO
-                # Modelin ağırlıkları kaydedilecek
-                # model.save_model()
 
                 if next_state is None:
+                    # TODO
+                    # Modelin ağırlıkları kaydedilecek
+                    # model.save_model()
                     break
 
                 # ////////////////////////////////

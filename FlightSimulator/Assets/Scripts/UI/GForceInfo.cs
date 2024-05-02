@@ -7,6 +7,8 @@ using TMPro;
 public class GForceInfo : MonoBehaviour
 {
     public Text gForceText;
+    private GameObject playerPlane;
+    private Plane planeScript;
     private float gForceValue;
     private float gForceThreshold = 5.0f;
     private float blinkDuration = 2.0f;
@@ -14,9 +16,15 @@ public class GForceInfo : MonoBehaviour
     private bool isBlinking = false;
     private float elapsedTime = 0f;
 
+    void Start()
+    {
+        playerPlane = GameObject.FindWithTag("PlayerPlane");
+        planeScript = playerPlane.GetComponent<Plane>();
+    } 
+
     public void FixedUpdate()
     {
-        gForceValue = Plane.GetLocalGForce();
+        gForceValue = planeScript.GetLocalGForce();
         
 
         if (gForceText != null)

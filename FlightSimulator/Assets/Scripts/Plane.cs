@@ -42,22 +42,22 @@ public class Plane : MonoBehaviour
     [SerializeField]
     Vector3 turnAcceleration;
     Rigidbody rb;
-    static Vector3 velocity;
+    Vector3 velocity;
     Vector3 localVelocity;
     Vector3 lastVelocity;
     Vector3 localAngularVelocity;
-    static Vector3 localGForce;
+    Vector3 localGForce;
     static float gForce;
     float angleOfAttack;
     float angleOfAttackYaw;
     Vector3 controlInput;
     float thrustInput;
     float thrustValue;
+    GameObject gameManager;
     Sender sender;
 
-    public static Vector3 GetVelocity()
+    public Vector3 GetVelocity()
     {
-
         return velocity;
     }
 
@@ -67,14 +67,21 @@ public class Plane : MonoBehaviour
     void Start()
     {
         
+        if (gameObject.tag == "PlayerPlane")
+        {
+            inputReader.ThrustEvent += HandleThrustInput;
+            inputReader.RollPitchEvent += HandleRollPitchInput;
+            inputReader.YawEvent += HandleYawInput;
+        }
+        else if (gameObject.tag == "EnemyPlane")
+        {
+            gameManager = GameObject.Find("GameManager");
+            sender = gameManager.GetComponent<Sender>();
+            sender.ThrustEvent += HandleThrustInput;
+            sender.RollPitchEvent += HandleRollPitchInput;
+            sender.YawEvent += HandleYawInput;
+        }
         rb = gameObject.GetComponent<Rigidbody>();
-        sender = gameObject.GetComponent<Sender>();
-        inputReader.ThrustEvent += HandleThrustInput;
-        inputReader.RollPitchEvent += HandleRollPitchInput;
-        inputReader.YawEvent += HandleYawInput;
-        sender.ThrustEvent += HandleThrustInput;
-        sender.RollPitchEvent += HandleRollPitchInput;
-        sender.YawEvent += HandleYawInput;
 
         // Add very small torque to the wheels in order to work around a bug
         foreach (WheelCollider w in GetComponentsInChildren<WheelCollider>())
@@ -212,7 +219,7 @@ public class Plane : MonoBehaviour
     }
 
 
-    public static float GetLocalGForce()
+    public float GetLocalGForce()
     {
   
         return gForce;

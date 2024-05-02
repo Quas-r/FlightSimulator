@@ -5,7 +5,7 @@ using UnityEngine.InputSystem;
 
 public class CameraController : MonoBehaviour
 {
-    private Controls controls;
+    public InputReader inputReader;
 
     public float mouseSensivity = 50f;
 
@@ -19,18 +19,13 @@ public class CameraController : MonoBehaviour
 
     private void Awake()
     {
-        
-        controls = new Controls();
+        inputReader.CameraEvent += Look;
         Cursor.lockState = CursorLockMode.Locked; //locks mouse cursor
     }
-    private void Update()
+
+    private void Look(Vector2 mouseLook)
     {
-        Look();
-    }
-    private void Look()
-    {
-        mouseLook = controls.Plane.Camera.ReadValue<Vector2>();
-        float mouseX = mouseLook.x*mouseSensivity*Time.deltaTime;
+        float mouseX = mouseLook.x * mouseSensivity * Time.deltaTime;
         float mouseY = mouseLook.y * mouseSensivity * Time.deltaTime;
 
         xRotation -= mouseY;
@@ -40,15 +35,14 @@ public class CameraController : MonoBehaviour
         yRotation = Mathf.Clamp(yRotation, -90f, 90f);
 
         transform.localRotation = Quaternion.Euler(xRotation,-yRotation,0);
-        
+    }
 
-    }
-    private void OnEnable()
-    {
-        controls.Enable();
-    }
-    private void OnDisable()
-    {
-        controls.Disable();
-    }
+    // private void OnEnable()
+    // {
+        // controls.Enable();
+    // }
+    // private void OnDisable()
+    // {
+        // controls.Disable();
+    // }
 }

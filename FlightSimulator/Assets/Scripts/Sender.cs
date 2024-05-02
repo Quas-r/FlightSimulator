@@ -31,7 +31,6 @@ public class Sender : MonoBehaviour
     private string serverIp = "127.0.0.1"; // Python TCP sunucusunun IP adresi
     private int port = 8888; // TCP baðlantý noktasý
     public bool connected = false;
-    private Plane planeScript;
     public InputFromTcp input = new InputFromTcp();
     public bool gameNotOver = true;
     public bool responded = false;
@@ -40,38 +39,38 @@ public class Sender : MonoBehaviour
     public event Action<float> ThrustEvent;
     public event Action<float> YawEvent;
 
-    Vector3 planePosition;
-    Quaternion planeRotation;
-    Vector3 planeEulerRotation;
-    Vector3 planeVelocity;
-    float planeGForce;
+    private GameObject playerPlane;
+    private Plane playerPlaneScript;
+    Vector3 playerPlanePosition;
+    Vector3 playerPlaneEulerRotation;
+    Vector3 playerPlaneVelocity;
+    float playerPlaneGForce;
 
-    public GameObject cube;
-    Vector3 cubePosition;
-    Quaternion cubeRotation;
-    Vector3 cubeEulerRotation;
-    Vector3 cubeVelocity;
-    float cubeGForce;
-
-
+    private GameObject enemyPlane;
+    private Plane enemyPlaneScript;
+    Vector3 enemyPlanePosition;
+    Vector3 enemyPlaneEulerRotation;
+    Vector3 enemyPlaneVelocity;
+    float enemyPlaneGForce;
     float reward;
 
 
     void Start()
     {
-        planeScript = gameObject.GetComponent<Plane>();
-        planePosition = planeScript.transform.position;
-        planeRotation = planeScript.transform.rotation;
-        planeEulerRotation = planeRotation.eulerAngles;
-        planeVelocity = Plane.GetVelocity();
-        planeGForce = Plane.GetLocalGForce();
+        playerPlane = GameObject.FindWithTag("PlayerPlane");
+        enemyPlane = GameObject.FindWithTag("EnemyPlane");
+        playerPlaneScript = playerPlane.GetComponent<Plane>();
+        enemyPlaneScript = enemyPlane.GetComponent<Plane>();
 
-       
-        cubePosition = cube.transform.position;
-        cubeRotation = cube.transform.rotation;
-        cubeEulerRotation = cubeRotation.eulerAngles;
-        cubeVelocity = Plane.GetVelocity();
-        cubeGForce = Plane.GetLocalGForce();
+        playerPlanePosition = playerPlane.transform.position;
+        playerPlaneEulerRotation = playerPlane.transform.rotation.eulerAngles;
+        playerPlaneVelocity = playerPlaneScript.GetVelocity();
+        playerPlaneGForce = playerPlaneScript.GetLocalGForce();
+
+        enemyPlanePosition = enemyPlane.transform.position;
+        enemyPlaneEulerRotation = enemyPlane.transform.rotation.eulerAngles;
+        enemyPlaneVelocity = enemyPlaneScript.GetVelocity();
+        enemyPlaneGForce = enemyPlaneScript.GetLocalGForce();
 
         ConnectToServer();
     }
@@ -98,7 +97,7 @@ public class Sender : MonoBehaviour
         while (connected)
         {
             string keyboardData = ReceiveData();
-            input = JsonUtility.FromJson<InputFromTcp>(keyboardData);
+            this.input = JsonUtility.FromJson<InputFromTcp>(keyboardData);
         }
     }
 
@@ -114,51 +113,10 @@ public class Sender : MonoBehaviour
         }
     }
 
-    IEnumerator SendAndReceiveDataLoop()
-    {
-        while (connected)
-        {
-            // Örnek olarak pozisyon verisinin güncellendiði bir metot
-            Vector3 currentPosition = transform.position;
-
-            // Pozisyon verisini sunucuya gönder
-            SendPositionData(currentPosition);
-
-            // Sunucudan gelen veriyi al
-            string receivedData = ReceiveData();
-
-            // Alýnan veriyi iþle (örneðin, nesnenin konumunu güncelle)
-            ProcessReceivedData(receivedData);
-
-            // 1 saniye bekleyin
-            yield return new WaitForSeconds(1f);
-        }
-    }
-
-    void SendPositionData(Vector3 position)
-    {
-        try
-        {
-            // Pozisyon verisini oluþtur
-            string positionData = $"{position.x},{position.y},{position.z}";
-
-            // Veriyi byte dizisine dönüþtür ve sunucuya gönder
-            byte[] data = Encoding.ASCII.GetBytes(positionData);
-            client.GetStream().Write(data, 0, data.Length);
-            Debug.Log("Sent position data: " + positionData);
-        }
-        catch (Exception e)
-        {
-            Debug.LogError($"Error while sending position data: {e}");
-        }
-    }
-
     string ReceiveData()
     {
         try
         {
-          
-
             byte[] buffer = new byte[1024];
             byte[] jsonData;
             int bytesRead = client.GetStream().Read(buffer, 0, buffer.Length);
@@ -169,22 +127,22 @@ public class Sender : MonoBehaviour
                 
                 var data = new
                 {
-                    planePositionx = planePosition.x,
-                    planePositiony = planePosition.y,
-                    planePositionz = planePosition.z,
-                    planeEulerRotationx = planeEulerRotation.x,
-                    planeEulerRotationy = planeEulerRotation.y,
-                    planeEulerRotationz = planeEulerRotation.z,
-                    planeVelocity = planeVelocity.y,
-                    planeGForce = planeGForce,
-                    cubePositionx = cubePosition.x,
-                    cubePositiony = cubePosition.y,
-                    cubePositionz = cubePosition.z,
-                    cubeEulerRotationx = cubeEulerRotation.x,
-                    cubeEulerRotationy = cubeEulerRotation.y,
-                    cubeEulerRotationz = cubeEulerRotation.z,
-                    cubeVelocity = cubeVelocity.y,
-                    cubeGForce = cubeGForce,
+                    playerPlanePositionx = playerPlanePosition.x,
+                    playerPlanePositiony = playerPlanePosition.y,
+                    playerPlanePositionz = playerPlanePosition.z,
+                    playerPlaneEulerRotationx = playerPlaneEulerRotation.x,
+                    playerPlaneEulerRotationy = playerPlaneEulerRotation.y,
+                    playerPlaneEulerRotationz = playerPlaneEulerRotation.z,
+                    playerPlaneForwardVelocity = playerPlaneVelocity.z,
+                    playerPlaneGForce = playerPlaneGForce,
+                    enemyPlanePositionx = enemyPlanePosition.x,
+                    enemyPlanePositiony = enemyPlanePosition.y,
+                    enemyPlanePositionz = enemyPlanePosition.z,
+                    enemyPlaneEulerRotationx = enemyPlaneEulerRotation.x,
+                    enemyPlaneEulerRotationy = enemyPlaneEulerRotation.y,
+                    enemyPlaneEulerRotationz = enemyPlaneEulerRotation.z,
+                    enemyPlaneForwardVelocity = enemyPlaneVelocity.z,
+                    enemyPlaneGForce = enemyPlaneGForce,
                     endGame = "CONGAME",
                     reward = reward,
 
@@ -198,22 +156,22 @@ public class Sender : MonoBehaviour
       
                 var data = new
                 {
-                    planePositionx = planePosition.x,
-                    planePositiony = planePosition.y,
-                    planePositionz = planePosition.z,
-                    planeEulerRotationx = planeEulerRotation.x,
-                    planeEulerRotationy = planeEulerRotation.y,
-                    planeEulerRotationz = planeEulerRotation.z,
-                    planeVelocity = planeVelocity.y,
-                    planeGForce = planeGForce,
-                    cubePositionx = cubePosition.x,
-                    cubePositiony = cubePosition.y,
-                    cubePositionz = cubePosition.z,
-                    cubeEulerRotationx = cubeEulerRotation.x,
-                    cubeEulerRotationy = cubeEulerRotation.y,
-                    cubeEulerRotationz = cubeEulerRotation.z,
-                    cubeVelocity = cubeVelocity.y,
-                    cubeGForce = cubeGForce,
+                    playerPlanePositionx = playerPlanePosition.x,
+                    playerPlanePositiony = playerPlanePosition.y,
+                    playerPlanePositionz = playerPlanePosition.z,
+                    playerPlaneEulerRotationx = playerPlaneEulerRotation.x,
+                    playerPlaneEulerRotationy = playerPlaneEulerRotation.y,
+                    playerPlaneEulerRotationz = playerPlaneEulerRotation.z,
+                    playerPlaneForwardVelocity = playerPlaneVelocity.z,
+                    playerPlaneGForce = playerPlaneGForce,
+                    enemyPlanePositionx = enemyPlanePosition.x,
+                    enemyPlanePositiony = enemyPlanePosition.y,
+                    enemyPlanePositionz = enemyPlanePosition.z,
+                    enemyPlaneEulerRotationx = enemyPlaneEulerRotation.x,
+                    enemyPlaneEulerRotationy = enemyPlaneEulerRotation.y,
+                    enemyPlaneEulerRotationz = enemyPlaneEulerRotation.z,
+                    enemyPlaneForwardVelocity = enemyPlaneVelocity.z,
+                    enemyPlaneGForce = enemyPlaneGForce,
                     endGame = "ENDGAME",
                     reward = reward,
 
@@ -235,12 +193,6 @@ public class Sender : MonoBehaviour
         }
     }
 
-    void ProcessReceivedData(string receivedData)
-    {
-        Debug.Log($"Received data: {receivedData}");
-        // Alýnan veriyi iþle (örneðin, nesnenin konumunu güncelle)
-    }
-
     void OnDestroy()
     {
         Disconnect();
@@ -257,22 +209,19 @@ public class Sender : MonoBehaviour
 
     void FixedUpdate()
     {
-        planeScript = gameObject.GetComponent<Plane>();
-        planePosition = planeScript.transform.position;
-        planeRotation = planeScript.transform.rotation;
-        planeEulerRotation = planeRotation.eulerAngles;
-        planeVelocity = Plane.GetVelocity();
-        planeGForce = Plane.GetLocalGForce();
+        playerPlanePosition = playerPlane.transform.position;
+        playerPlaneEulerRotation = playerPlane.transform.rotation.eulerAngles;
+        playerPlaneVelocity = playerPlaneScript.GetVelocity();
+        playerPlaneGForce = playerPlaneScript.GetLocalGForce();
 
 
-        cubePosition = cube.transform.position;
-        cubeRotation = cube.transform.rotation;
-        cubeEulerRotation = cubeRotation.eulerAngles;
-        cubeVelocity = Plane.GetVelocity();
-        cubeGForce = Plane.GetLocalGForce();
+        enemyPlanePosition = enemyPlane.transform.position;
+        enemyPlaneEulerRotation = enemyPlane.transform.rotation.eulerAngles;
+        enemyPlaneVelocity = enemyPlaneScript.GetVelocity();
+        enemyPlaneGForce = enemyPlaneScript.GetLocalGForce();
 
 
-        reward = RewardCalculator.CalculateReward(gameObject.transform, cube.transform, cubeVelocity.y, cubeGForce);
-        ProcessReceivedDataFromExternalKeyboardWhichWillEventuallyBeGivenFromOurDeepQLearningModel(input);
+        reward = RewardCalculator.CalculateReward(playerPlane.transform, enemyPlane.transform, enemyPlaneVelocity.z, enemyPlaneGForce);
+        ProcessReceivedDataFromExternalKeyboardWhichWillEventuallyBeGivenFromOurDeepQLearningModel(this.input);
     }
 }

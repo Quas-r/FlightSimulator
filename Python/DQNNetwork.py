@@ -74,6 +74,8 @@ class DQNNetwork(object):
         self.steps_done += 1
         if probability > eps_threshold:
             with torch.no_grad():
+                # TODO
+                # Float yerine int mantıklı olabilir mi?
                 return torch.tensor([action_space.actions[self.policy_net(state).max(1).indices]], device=device, dtype=torch.long)
         else:
             return torch.tensor([[action_space.select_random_action]], device=device, dtype=torch.long)

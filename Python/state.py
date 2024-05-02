@@ -8,25 +8,25 @@ class State(object):
     def update_state(self, json_data, device):
 
         self.state[0:3] = torch.tensor(
-            [json_data['planePositionx'], json_data['planePositiony'], json_data['planePositionz']],
+            [json_data['playerPlanePositionx'], json_data['playerPlanePositiony'], json_data['playerPlanePositionz']],
             device=device)
         self.state[3:6] = torch.tensor(
-            [json_data['planeEulerRotationx'], json_data['planeEulerRotationy'], json_data['planeEulerRotationz']],
+            [json_data['playerPlaneEulerRotationx'], json_data['playerPlaneEulerRotationy'], json_data['playerPlaneEulerRotationz']],
             device=device)
         self.state[6:9] = torch.tensor(
-            [json_data['cubePositionx'], json_data['cubePositiony'], json_data['cubePositionz']],
+            [json_data['enemyPlanePositionx'], json_data['enemyPlanePositiony'], json_data['enemyPlanePositionz']],
             device=device)
         self.state[9:12] = torch.tensor(
-            [json_data['cubeEulerRotationx'], json_data['cubeEulerRotationy'], json_data['cubeEulerRotationz']],
+            [json_data['enemyPlaneEulerRotationx'], json_data['enemyPlaneEulerRotationy'], json_data['enemyPlaneEulerRotationz']],
             device=device)
 
-        self.state[12] = torch.tensor([json_data['planeVelocity']], device=device)
-        self.state[13] = torch.tensor([json_data['cubeVelocity']], device=device)
-        self.state[14] = torch.tensor([json_data['planeGForce']], device=device)
-        self.state[15] = torch.tensor([json_data['cubeGForce']], device=device)
+        self.state[12] = torch.tensor([json_data['playerPlaneForwardVelocity']], device=device)
+        self.state[13] = torch.tensor([json_data['enemyPlaneForwardVelocity']], device=device)
+        self.state[14] = torch.tensor([json_data['playerPlaneGForce']], device=device)
+        self.state[15] = torch.tensor([json_data['enemyPlaneGForce']], device=device)
 
     def get_state_tensor(self):
         return self.state
 
     def __len__(self):
-        return self.state
+        return self.state.size(dim=1)
