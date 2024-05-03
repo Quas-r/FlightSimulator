@@ -84,7 +84,7 @@ public class Sender : MonoBehaviour
             Debug.Log("Connected to server for sending and receiving data.");
 
             // Pozisyon verisi göndermek için bir döngü baþlat
-            Thread t = new Thread(KeyboardReceiver);
+            Thread t = new Thread(DataReceiver);
             t.Start();
             // StartCoroutine(KeyboardReceiver());
         } catch (Exception e) {
@@ -92,12 +92,11 @@ public class Sender : MonoBehaviour
         }
     }
 
-    void KeyboardReceiver()
+    void DataReceiver()
     {
         while (connected)
         {
             string keyboardData = ReceiveData();
-            Debug.Log(keyboardData);
             this.input = JsonUtility.FromJson<InputFromTcp>(keyboardData);
         }
     }
@@ -221,8 +220,13 @@ public class Sender : MonoBehaviour
         enemyPlaneVelocity = enemyPlaneScript.GetVelocity();
         enemyPlaneGForce = enemyPlaneScript.GetLocalGForce();
 
+        if (connected)
+        {
+            string keyboardData = ReceiveData();
+            this.input = JsonUtility.FromJson<InputFromTcp>(keyboardData);
+            reward = RewardCalculator.CalculateReward(playerPlane.transform, enemyPlane.transform, enemyPlaneVelocity.z, enemyPlaneGForce);
+            ProcessReceivedDataFromExternalKeyboardWhichWillEventuallyBeGivenFromOurDeepQLearningModel(this.input);
+        }
 
-        reward = RewardCalculator.CalculateReward(playerPlane.transform, enemyPlane.transform, enemyPlaneVelocity.z, enemyPlaneGForce);
-        ProcessReceivedDataFromExternalKeyboardWhichWillEventuallyBeGivenFromOurDeepQLearningModel(this.input);
     }
 }
