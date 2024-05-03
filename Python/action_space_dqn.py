@@ -1,5 +1,6 @@
 import random
 import numpy as np
+import torch
 
 
 class ActionSpaceDQN(object):
@@ -19,10 +20,18 @@ class ActionSpaceDQN(object):
                         self.thrust_low, self.thrust_high,
                         self.yaw_low, self.yaw_high]
 
+        self.action_tensor = None
+
     def __len__(self):
         return len(self.actions)
 
     def select_random_action(self):
 
-        selected_action = random.choice(self.actions)
-        return selected_action
+        # selected_action = random.choice(self.actions)
+        # return selected_action
+
+        index = random.randint(0, len(self.actions) - 1)
+        return index, self.actions[index]
+
+    def update_action_tensor(self, index, device):
+        self.action_tensor = torch.tensor([index], device=device, dtype=torch.long)

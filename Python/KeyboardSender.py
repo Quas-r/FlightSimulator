@@ -106,6 +106,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             output_size = actions.__len__()
 
             model = DQNNetwork(input_size=input_size, output_size=output_size, device=device)
+
             print(model)
 
             # TODO
@@ -125,9 +126,12 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
 
             while True:
 
-                action = model.select_action(state.get_state_tensor(), actions, device=device)
+                action, index = model.select_action(state.get_state_tensor(), actions, device=device)
 
-                print(action)
+                for param in model.policy_net.parameters():
+                    print(param.grad)
+
+                action_index_tensor = torch.tensor([index], device=device)
 
                 inp = {
                     "thrust": action[0][0].item(),
@@ -167,7 +171,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
                 else:
                     next_state = observation
 
-                model.buffer.push(state, action, next_state, reward)
+                model.buffer.push(state, action_index_tensor, next_state, reward)
 
                 state = next_state
 
@@ -179,7 +183,6 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
                     target_net_state_dict[key] = policy_net_state_dict[key] * TAU + target_net_state_dict[key] * (
                                 1 - TAU)
                 model.target_net.load_state_dict(target_net_state_dict)
-
 
                 if next_state is None:
                     # TODO
