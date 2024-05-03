@@ -129,7 +129,8 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
                 action, index = model.select_action(state.get_state_tensor(), actions, device=device)
 
                 for param in model.policy_net.parameters():
-                    print(param.grad)
+                    if param.grad != None:
+                        print("Policy parameters gradients:", param.grad)
 
                 action_index_tensor = torch.tensor([index], device=device)
 

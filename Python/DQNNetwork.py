@@ -78,7 +78,7 @@ class DQNNetwork(object):
                 # Float yerine int mantıklı olabilir mi?
                 output = self.policy_net(state)
                 max_value, max_index = output.max(0)
-                action_tensor = torch.tensor([action_space.actions[max_index]], device=device, dtype=torch.long)
+                action_tensor = torch.tensor([action_space.actions[max_index]], device=device, dtype=torch.float32)
                 return action_tensor, max_index
         else:
             index, action = action_space.select_random_action()
@@ -90,16 +90,11 @@ class DQNNetwork(object):
 
         if len(self.buffer) < BATCH_SIZE:
             return
+        # batch = self.buffer.sample(batch_size=BATCH_SIZE)
         transitions = self.buffer.sample(batch_size=BATCH_SIZE)
         batch = Transition(*zip(*transitions))
 
-        for state in batch.next_state:
-            if state is not None:
-                print(state.get_state_tensor())
-            else:
-                print("None")
-
-        non_final_mask = torch.tensor(tuple(map(lambda s: state.get_state_tensor() is not None,
+        non_final_mask = torch.tensor(tuple(map(lambda state: state.get_state_tensor() is not None,
                                                 batch.next_state)), device=device, dtype=torch.bool)
         non_final_next_states = torch.stack([state.get_state_tensor() for state in batch.next_state if state is not None], dim=0)
 
@@ -109,41 +104,25 @@ class DQNNetwork(object):
         action_batch = torch.stack(batch.action, dim=0)
         reward_batch = torch.cat(batch.reward)
 
-        print(action_batch)
-        print(self.policy_net(state_batch))
         state_action_values = self.policy_net(state_batch).gather(1, action_batch)
-        print(state_action_values)
 
         next_state_values = torch.zeros(BATCH_SIZE, device=device)
-        print(next_state_values)
-        print(non_final_next_states)
-        with torch.no_grad():
 
-            output = self.target_net(non_final_next_states)
-            values, indexs = output.max(1)
-            print(values, indexs)
-            print(non_final_mask)
-            next_state_values[non_final_mask] = self.target_net(non_final_next_states).max(1).values
-            print(next_state_values)
-            print(reward_batch)
-            # Compute the expected Q values
-            expected_state_action_values = (next_state_values * GAMMA) + reward_batch
-            print(expected_state_action_values)
+        next_state_values[non_final_mask] = self.target_net(non_final_next_states).max(1).values
 
-            criterion = nn.SmoothL1Loss()
-            loss = criterion(state_action_values, expected_state_action_values.unsqueeze(1))
+        # Compute the expected Q values
+        expected_state_action_values = (next_state_values * GAMMA) + reward_batch
 
-            print(loss)
-            self.optimizer.zero_grad()
-            print(loss.requires_grad)
-            for param in self.policy_net.parameters():
-                print(param.requires_grad)
+        criterion = nn.SmoothL1Loss()
+        loss = criterion(state_action_values, expected_state_action_values.unsqueeze(1))
 
-            loss.requires_grad = True
-            loss.backward()
-            # In-place gradient clipping
-            torch.nn.utils.clip_grad_value_(self.policy_net.parameters(), 100)
-            self.optimizer.step()
+        self.optimizer.zero_grad()
+
+        loss.backward()
+
+        # In-place gradient clipping
+        torch.nn.utils.clip_grad_value_(self.policy_net.parameters(), 100)
+        self.optimizer.step()
 
     def save_model(self, filename="checkpoint.pth"):
         torch.save({

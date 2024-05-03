@@ -29,5 +29,5 @@ class State(object):
         return self.state
 
     def __len__(self):
-        print(self.state.size(dim=0))
+        # print(self.state.size(dim=0))
         return self.state.size(dim=0)
