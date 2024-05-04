@@ -122,16 +122,11 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             print(received_data)
             data_dict = json.loads(received_data)
             state.update_state(data_dict, device=device)
-            print(state.get_state_tensor())
 
+            counter = 1
             while True:
 
                 action, index = model.select_action(state.get_state_tensor(), actions, device=device)
-
-                for param in model.policy_net.parameters():
-                    if param.grad != None:
-                        print("Policy parameters gradients:", param.grad)
-
                 action_index_tensor = torch.tensor([index], device=device)
 
                 inp = {
@@ -149,7 +144,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
                 conn.sendall(bytes(data_to_send, "utf-8"))
                 print(data_to_send)
 
-                print("veri gönderdi")
+                print("VERİ GÖNDERİLDİ !!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
 
                 # TODO
                 # Unity tarafındna veri alınacak

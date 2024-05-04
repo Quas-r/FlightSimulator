@@ -2,7 +2,7 @@ import random
 import numpy as np
 import torch
 import math
-from torch import nn
+from torch import dtype, nn
 import torch.optim as optim
 import torch.nn.functional as F
 from collections import namedtuple, deque
@@ -11,7 +11,7 @@ from collections import namedtuple, deque
 # TODO -> Plotting
 
 BUFFER_SIZE = 10000
-BATCH_SIZE = 128
+BATCH_SIZE = 32
 GAMMA = 0.98
 EPS_START = 1
 EPS_END = 0.1
@@ -42,7 +42,6 @@ class ReplayBuffer(object):
 
     def __len__(self):
         return len(self.buffer)
-
 
 class DQNModel(nn.Module):
     def __init__(self, input_size, output_size):
@@ -93,14 +92,11 @@ class DQNNetwork(object):
         # batch = self.buffer.sample(batch_size=BATCH_SIZE)
         transitions = self.buffer.sample(batch_size=BATCH_SIZE)
         batch = Transition(*zip(*transitions))
-
-        non_final_mask = torch.tensor(tuple(map(lambda state: state.get_state_tensor() is not None,
-                                                batch.next_state)), device=device, dtype=torch.bool)
+    
+        non_final_mask = torch.tensor([transition.next_state is not None for transition in transitions], device=device, dtype=torch.bool)
         non_final_next_states = torch.stack([state.get_state_tensor() for state in batch.next_state if state is not None], dim=0)
 
-        # state_batch = torch.cat([state.get_state_tensor() for state in batch.next_state])
-        state_batch = torch.stack([state.get_state_tensor() for state in batch.next_state], dim=0)
-        # action_batch = torch.cat(batch.action)
+        state_batch = torch.stack([state.get_state_tensor() for state in batch.state], dim=0)
         action_batch = torch.stack(batch.action, dim=0)
         reward_batch = torch.cat(batch.reward)
 
