@@ -11,7 +11,7 @@ from collections import namedtuple, deque
 # TODO -> Plotting
 
 BUFFER_SIZE = 10000
-BATCH_SIZE = 32
+BATCH_SIZE = 128
 GAMMA = 0.98
 EPS_START = 1
 EPS_END = 0.1

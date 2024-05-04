@@ -1,6 +1,7 @@
 from pynput import keyboard
 import socket
 import json
+from copy import copy
 
 import torch
 from DQNNetwork import DQNNetwork
@@ -80,15 +81,8 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
 
     while True:
         conn, addr = s.accept()
+        print("Bağlantı kuruldu!")
         with conn:
-
-            inp = {"thrust": 0.00,
-                   "rollPitch": [0.00, 0.00],
-                   "yaw": 0.00,
-                   "toggleFlaps": 0}
-
-            # /////////////////////
-
             if torch.backends.mps.is_available():
                 device = torch.device("mps")
             elif torch.cuda.is_available():
@@ -97,10 +91,11 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
                 device = torch.device("cpu")
 
             # model olusturma
+            actions = ActionSpaceDQN()
+            
+            # Change this please
             state = State(device=device)  # TODO
             observation = State(device=device)  # TODO
-
-            actions = ActionSpaceDQN()
 
             input_size = state.__len__()
             output_size = actions.__len__()
@@ -114,17 +109,9 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             # Model ağırlıkları yüklenecek
             # model.load_model()
 
-            data_to_send = json.dumps(inp)
-            conn.sendall(bytes(data_to_send, "utf-8"))
-
-            received_data = conn.recv(1024)
-            received_data = received_data.decode('utf-8')
-            print(received_data)
-            data_dict = json.loads(received_data)
-            state.update_state(data_dict, device=device)
-
-            counter = 1
             while True:
+
+                observation = State(device=device)  # TODO
 
                 action, index = model.select_action(state.get_state_tensor(), actions, device=device)
                 action_index_tensor = torch.tensor([index], device=device)
@@ -136,21 +123,18 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
                     "toggleFlaps": 0
                 }
 
-                print(inp)
-
-                # TODO
-                # Unity tarafına veri gönderilecek action
-                data_to_send = json.dumps(inp)
-                conn.sendall(bytes(data_to_send, "utf-8"))
-                print(data_to_send)
-
-                print("VERİ GÖNDERİLDİ !!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-
                 # TODO
                 # Unity tarafındna veri alınacak
                 received_data = conn.recv(1024)
                 received_data = received_data.decode('utf-8')
                 data_dict = json.loads(received_data)
+                print("Received:", received_data)
+
+                # TODO
+                # Unity tarafına veri gönderilecek action
+                data_to_send = json.dumps(inp)
+                conn.sendall(bytes(data_to_send, "utf-8"))
+                print("Sent:", data_to_send)
 
                 observation.update_state(data_dict, device=device)
                 reward = data_dict["reward"]
@@ -158,7 +142,6 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
                     terminated = False
                 else:
                     terminated = True
-                print(data_dict["endGame"])
 
                 reward = torch.tensor([reward], device=device)
 
@@ -169,7 +152,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
 
                 model.buffer.push(state, action_index_tensor, next_state, reward)
 
-                state = next_state
+                state = copy(next_state)
 
                 model.optimize_model(device=device)
 
@@ -184,41 +167,5 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
                     # TODO
                     # Modelin ağırlıkları kaydedilecek
                     # model.save_model()
+                    print("Bağlantı kesiliyor...")
                     break
-
-                # ////////////////////////////////
-
-                # changed = process_keys_pressed(keys_pressed, inp)
-                # if changed:
-                #     data = json.dumps(inp)
-                #     conn.sendall(bytes(data, "utf-8"))
-                #     response = conn.recv(9)
-                #     response = response.decode('utf-8')
-                #     data_dict = json.loads(response)
-                #     if data_dict["endgame"] == "EDNGAME":
-                #         break
-                #     inp = {"thrust": 0.00,
-                #            "rollPitch": [0.00, 0.00],
-                #            "yaw": 0.00,
-                #            "toggleFlaps": 0}
-
-                # data_to_send = json.dumps(inp)
-                # conn.sendall(bytes(data_to_send, "utf-8"))
-                # received_data = conn.recv(1024)
-                #
-                # if not received_data:
-                #     print("Bağlantı kapatıldı.")
-                #     break
-                #
-                # received_data = received_data.decode('utf-8')
-                # data_dict = json.loads(received_data)
-                #
-                # state = State()
-                # next_state = state.update_state(data_dict)
-                # print(next_state)
-                # reward = data_dict["reward"]
-                # print(reward)
-                #
-                #
-                # if data_dict["endGame"] == "EDNGAME":
-                #     print("Oyunun sonlandırılması istendi.")

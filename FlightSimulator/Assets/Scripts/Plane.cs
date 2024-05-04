@@ -66,7 +66,8 @@ public class Plane : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        
+        gameManager = GameObject.Find("GameManager");
+        sender = gameManager.GetComponent<Sender>();
         if (gameObject.tag == "PlayerPlane")
         {
             inputReader.ThrustEvent += HandleThrustInput;
@@ -75,8 +76,6 @@ public class Plane : MonoBehaviour
         }
         else if (gameObject.tag == "EnemyPlane")
         {
-            gameManager = GameObject.Find("GameManager");
-            sender = gameManager.GetComponent<Sender>();
             sender.ThrustEvent += HandleThrustInput;
             sender.RollPitchEvent += HandleRollPitchInput;
             sender.YawEvent += HandleYawInput;
@@ -182,9 +181,15 @@ public class Plane : MonoBehaviour
         gForce = localGForce.y /  9.81f;
         if (gForce > 9.0f && transform.position.y > 3.0f)
         {
-            
-            StartNewGame();
+            sender.StartNewGame();
+        }
+    }
 
+    public void OnCollisionEnter(Collision collision)
+    {
+        if (collision.gameObject.CompareTag("Ground") || collision.gameObject.CompareTag("PlayerPlane")) 
+        {
+            sender.StartNewGame();
         }
     }
 
@@ -192,36 +197,34 @@ public class Plane : MonoBehaviour
     {
         RaycastHit hit;
         float raycastDistance = 10.0f; 
+        Debug.Log("Bir şeye çarptın");
 
         if (Physics.Raycast(transform.position, Vector3.down, out hit, raycastDistance))
         {
-            
             if (hit.collider.CompareTag("Ground")) 
             {
-
-                StartNewGame();
-              
-               
+                Debug.Log("Yere çarptın");
+                // StartNewGame();
             }
         }
-}
-
-    public void StartNewGame()
-    {
-        
-        if (sender.connected)
-        {
-            sender.gameNotOver = false;
-            while (!sender.gameNotOver); // Stupid
-        }
-        int activeSceneIndex = SceneManager.GetActiveScene().buildIndex;
-        SceneManager.LoadScene(activeSceneIndex);
     }
+
+//     public void StartNewGame()
+//     {
+//         
+//         if (sender.connected)
+//         {
+//             sender.gameNotOver = false;
+//             while (!sender.gameNotOver); // Stupid
+//             sender.connected = false;
+//         }
+//         int activeSceneIndex = SceneManager.GetActiveScene().buildIndex;
+//         SceneManager.LoadScene(activeSceneIndex);
+//     }
 
 
     public float GetLocalGForce()
     {
-  
         return gForce;
     }
 
@@ -271,7 +274,6 @@ public class Plane : MonoBehaviour
     // Update is called once per frame
     void FixedUpdate()
     {
-        
         CalculateState();
         CalculateGForce(Time.deltaTime);
         UpdateThrottle(Time.deltaTime);
@@ -279,8 +281,7 @@ public class Plane : MonoBehaviour
         UpdateLift();
         UpdateDrag();
         UpdateSteering(Time.deltaTime);
-        DetectCollision();
-        //Debug.Log(rb.velocity.magnitude);
+        // DetectCollision();
     }
 
 }

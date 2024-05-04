@@ -31,3 +31,10 @@ class State(object):
     def __len__(self):
         # print(self.state.size(dim=0))
         return self.state.size(dim=0)
+
+    def __copy__(self):
+        cls = self.__class__
+        result = cls.__new__(cls)
+        result.state = torch.clone(self.state)
+        result.__dict__.update(self.__dict__)
+        return result
