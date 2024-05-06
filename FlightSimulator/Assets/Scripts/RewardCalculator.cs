@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -11,49 +12,74 @@ public static class RewardCalculator
 
     private const float maxGForce = 7f;
 
-    private const float aim120SidewinderShortDistance = 1000f; // km
-    private const float aim120SidewinderLongDistance = 34500f; // km
+    private const float minDistance = 5f;
+
+    private const float aim120SidewinderShortDistance = 100f; // km
+    private const float aim120SidewinderLongDistance = 300f; // km
+
+
+
+
 
 
     public static float CalculateReward(Transform playerPlaneTransform, Transform enemyPlaneTransform, float enemyPlaneForwardVelocity, float enemyPlaneGForce)
     {
         Vector3 los = playerPlaneTransform.position - enemyPlaneTransform.position;
         float distance = los.magnitude;
+        Debug.Log(los);
 
+        Debug.Log(playerPlaneTransform.forward);
         float cosAngleAA = Vector3.Dot(playerPlaneTransform.forward, los) / (playerPlaneTransform.forward.magnitude * los.magnitude);
         float aaAngle = Mathf.Rad2Deg * Mathf.Acos(Mathf.Clamp(cosAngleAA, -1f, 1f));
+        Debug.Log(aaAngle);
 
-        float cosAngleATA = Vector3.Dot(enemyPlaneTransform.forward, -los) / (enemyPlaneTransform.forward.magnitude * los.magnitude);
+        float cosAngleATA = Vector3.Dot(enemyPlaneTransform.forward, los) / (enemyPlaneTransform.forward.magnitude * los.magnitude);
         float ataAngle = Mathf.Rad2Deg * Mathf.Acos(Mathf.Clamp(cosAngleATA, -1f, 1f));
+        Debug.Log(ataAngle);
 
         float reward = 0f;
 
-        if (distance < 0.1f) { reward -= 10f; }
-        else if (distance >= aim120SidewinderShortDistance && distance <= aim120SidewinderLongDistance)
+        if (distance < minDistance)
         {
-            reward += 10f;
-            if (Mathf.Abs(aaAngle) < 1f && Mathf.Abs(ataAngle) < 1f) { reward += 10f; }
+            reward -= 10f;
         }
-        else if (distance > aim120SidewinderLongDistance)
+        else
         {
-            if (Mathf.Abs(aaAngle) < 60f && Mathf.Abs(ataAngle) < 30f) { reward += 2f; }
-            else if (Mathf.Abs(ataAngle) > 120f && Mathf.Abs(aaAngle) > 150f) { reward -= 2f; }
+            float normalizedDistanceReward = Mathf.Exp(-distance / 100f);
+            reward += normalizedDistanceReward * 10f;
         }
 
-        if (enemyPlaneTransform.position.y < highAltitudeLimit &&
-            enemyPlaneForwardVelocity > lowAltitudeSpeed && enemyPlaneForwardVelocity < mediumAltitudeSpeed)
+        if (ataAngle > 90)
         {
-            reward += 1f;
+            Debug.Log(ataAngle);
+            reward += -10f * (ataAngle - 90f) / 90f;
         }
-        else if (enemyPlaneTransform.position.y >= highAltitudeLimit && Mathf.Abs(enemyPlaneForwardVelocity - highAltitudeSpeed) < 0.01f)
+        else
         {
-            reward += 1f;
+            float angleReward = Mathf.Exp(-Mathf.Pow(aaAngle / 45f, 2)) + Mathf.Exp(-Mathf.Pow(ataAngle / 45f, 2));
+            reward += angleReward * 5f;
+
+
+
+            // Hýz için sürekli ödül hesaplama
+            if (enemyPlaneTransform.position.y < highAltitudeLimit)
+            {
+                float speedDifference = Mathf.Abs(enemyPlaneForwardVelocity - mediumAltitudeSpeed);
+                reward += Mathf.Exp(-Mathf.Pow(speedDifference / 50f, 2)) * 2f;
+            }
+            else
+            {
+                float speedDifference = Mathf.Abs(enemyPlaneForwardVelocity - highAltitudeSpeed);
+                reward += Mathf.Exp(-Mathf.Pow(speedDifference / 50f, 2)) * 2f;
+            }
+
+
+            float gForceDifference = Mathf.Abs(enemyPlaneGForce - maxGForce);
+            float gForceReward = Mathf.Exp(-gForceDifference / (maxGForce * 0.1f));
+            reward += gForceReward * 5f;
+
+            
         }
-        else { reward -= 1f; }
-
-        if (enemyPlaneGForce <= maxGForce) { reward += 5f; }
-
         return reward;
     }
-
 }
