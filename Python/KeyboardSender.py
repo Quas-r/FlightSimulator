@@ -6,6 +6,7 @@ from copy import copy
 import torch
 from DQNNetwork import DQNNetwork
 from action_space_dqn import ActionSpaceDQN
+from reward_normalization import min_max_normalize
 from state import State
 
 HOST = "127.0.0.1"
@@ -75,13 +76,13 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     try:
         s.bind((HOST, PORT))
         s.listen()
-        print("Server başlatıldı, bağlantı bekleniyor...")
+        print("Server started, waiting for connection...")
     except socket.error as e:
-        print(f"Sunucu başlatma hatası: {e}")
+        print(f"Server startup error: {e}")
 
     while True:
         conn, addr = s.accept()
-        print("Bağlantı kuruldu!")
+        print("Connection established!")
         with conn:
             if torch.backends.mps.is_available():
                 device = torch.device("mps")
@@ -111,6 +112,8 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
 
             while True:
 
+                print(f"Steps done: {model.steps_done}")
+
                 observation = State(device=device)  # TODO
 
                 action, index = model.select_action(state.get_state_tensor(), actions, device=device)
@@ -131,6 +134,11 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
                 print("Received:", received_data)
 
                 # TODO
+                # Veri alindiktan sonra normalize edilmis degerler tutulacak statede
+                # bir kere yapalim bu degistirmeyi her input verildiginde degil
+                # state.apply_standard_scaling(data_dict)
+
+                # TODO
                 # Unity tarafına veri gönderilecek action
                 data_to_send = json.dumps(inp)
                 conn.sendall(bytes(data_to_send, "utf-8"))
@@ -138,11 +146,16 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
 
                 observation.update_state(data_dict, device=device)
                 reward = data_dict["reward"]
+                print("Reward: ", reward)
+
                 if data_dict["endGame"] == "CONGAME":
                     terminated = False
                 else:
                     terminated = True
 
+                # TODO
+                # reward tensor haline getirilmeden once normalizasyon yapilabilir
+                # reward = min_max_normalize(reward)
                 reward = torch.tensor([reward], device=device)
 
                 if terminated:
@@ -167,5 +180,5 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
                     # TODO
                     # Modelin ağırlıkları kaydedilecek
                     # model.save_model()
-                    print("Bağlantı kesiliyor...")
+                    print("Connection is being terminated...")
                     break

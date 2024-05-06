@@ -14,11 +14,12 @@ class ActionSpaceDQN(object):
         self.thrust_high = np.array([1, 0, 0, 0], dtype=dtype)
         self.yaw_low = np.array([0, 0, 0, -1], dtype=dtype)
         self.yaw_high = np.array([0, 0, 0, 1], dtype=dtype)
+        self.no_action = np.array([0, 0, 0, 0], dtype=dtype)
 
         self.actions = [self.roll_low, self.roll_high,
                         self.pitch_low, self.pitch_high,
                         self.thrust_low, self.thrust_high,
-                        self.yaw_low, self.yaw_high]
+                        self.yaw_low, self.yaw_high, self.no_action]
 
         self.action_tensor = None
 

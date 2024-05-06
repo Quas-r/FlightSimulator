@@ -2,7 +2,7 @@ import random
 import numpy as np
 import torch
 import math
-from torch import dtype, nn
+from torch import nn
 import torch.optim as optim
 import torch.nn.functional as F
 from collections import namedtuple, deque
@@ -43,6 +43,7 @@ class ReplayBuffer(object):
     def __len__(self):
         return len(self.buffer)
 
+
 class DQNModel(nn.Module):
     def __init__(self, input_size, output_size):
         super(DQNModel, self).__init__()
@@ -63,6 +64,12 @@ class DQNNetwork(object):
         self.target_net.load_state_dict(self.policy_net.state_dict())
 
         self.optimizer = optim.AdamW(self.policy_net.parameters(), lr=LR, amsgrad=True)
+
+        # TODO
+        # Agirliklar normalize edilecek mi
+        # l2 (torch.nn.utils.spectral_norm da kullanabiliriz)
+        # self.optimizer = optim.AdamW(self.policy_net.parameters(), lr=LR, amsgrad=True, weight_decay=1e-5)
+
         self.buffer = ReplayBuffer(capacity=BUFFER_SIZE)
 
         self.steps_done = 0
@@ -93,8 +100,10 @@ class DQNNetwork(object):
         transitions = self.buffer.sample(batch_size=BATCH_SIZE)
         batch = Transition(*zip(*transitions))
     
-        non_final_mask = torch.tensor([transition.next_state is not None for transition in transitions], device=device, dtype=torch.bool)
-        non_final_next_states = torch.stack([state.get_state_tensor() for state in batch.next_state if state is not None], dim=0)
+        non_final_mask = torch.tensor([transition.next_state is not None for transition in transitions],
+                                      device=device, dtype=torch.bool)
+        non_final_next_states = torch.stack(
+            [state.get_state_tensor() for state in batch.next_state if state is not None], dim=0)
 
         state_batch = torch.stack([state.get_state_tensor() for state in batch.state], dim=0)
         action_batch = torch.stack(batch.action, dim=0)

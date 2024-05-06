@@ -44,6 +44,9 @@ public class DataToSend
             float enemyPlaneEulerRotationz,
             float enemyPlaneForwardVelocity,
             float enemyPlaneGForce,
+            float relativePositionx,
+            float relativePositiony,
+            float relativePositionz,
             string endGame,
             float reward
             )
@@ -64,6 +67,9 @@ public class DataToSend
         this.enemyPlaneEulerRotationz = enemyPlaneEulerRotationz;
         this.enemyPlaneForwardVelocity = enemyPlaneForwardVelocity;
         this.enemyPlaneGForce = enemyPlaneGForce;
+        this.relativePositionx = relativePositionx;
+        this.relativePositiony = relativePositiony;
+        this.relativePositionz = relativePositionz;
         this.endGame = endGame;
         this.reward = reward;
     }
@@ -84,6 +90,9 @@ public class DataToSend
     public float enemyPlaneEulerRotationz;
     public float enemyPlaneForwardVelocity;
     public float enemyPlaneGForce;
+    public float relativePositionx;
+    public float relativePositiony;
+    public float relativePositionz;
     public string endGame;
     public float reward;
 }
@@ -115,6 +124,8 @@ public class Sender : MonoBehaviour
     Vector3 enemyPlaneVelocity;
     float enemyPlaneGForce;
     float reward;
+
+    Vector3 relativePosition;
 
     void Start()
     {
@@ -210,9 +221,12 @@ public class Sender : MonoBehaviour
                 enemyPlaneEulerRotation.z,
                 enemyPlaneVelocity.z,
                 enemyPlaneGForce,
+                relativePosition.x,
+                relativePosition.y,
+                relativePosition.z,
                 "CONGAME",
                 reward
-                );
+                ); ;
 
         if (gameOver)
         {
@@ -254,6 +268,8 @@ public class Sender : MonoBehaviour
             client.Close();
         }
     }
+   
+
 
     void FixedUpdate()
     {
@@ -266,6 +282,8 @@ public class Sender : MonoBehaviour
         enemyPlaneEulerRotation = enemyPlane.transform.rotation.eulerAngles;
         enemyPlaneVelocity = enemyPlaneScript.GetVelocity();
         enemyPlaneGForce = enemyPlaneScript.GetLocalGForce();
+
+        relativePosition = playerPlanePosition - enemyPlanePosition;
 
         if (connected) 
         {

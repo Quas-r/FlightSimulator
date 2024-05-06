@@ -23,6 +23,7 @@ public class CameraController : MonoBehaviour
         Cursor.lockState = CursorLockMode.Locked; //locks mouse cursor
     }
 
+
     private void Look(Vector2 mouseLook)
     {
         float mouseX = mouseLook.x * mouseSensivity * Time.deltaTime;
@@ -39,10 +40,16 @@ public class CameraController : MonoBehaviour
 
     // private void OnEnable()
     // {
-        // controls.Enable();
+    // controls.Enable();
     // }
     // private void OnDisable()
     // {
-        // controls.Disable();
+    // controls.Disable();
     // }
+
+    private void OnDisable()
+    {
+        inputReader.CameraEvent -= Look;
+    }
+
 }
