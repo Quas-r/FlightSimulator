@@ -76,11 +76,12 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     try:
         s.bind((HOST, PORT))
         s.listen()
-        print("Server started, waiting for connection...")
+        print("Server started...")
     except socket.error as e:
         print(f"Server startup error: {e}")
 
     while True:
+        print("Waiting for connection...")
         conn, addr = s.accept()
         print("Connection established!")
         with conn:
