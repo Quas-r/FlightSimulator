@@ -43,7 +43,7 @@ public class Plane : MonoBehaviour
     Vector3 turnAcceleration;
     Rigidbody rb;
     Vector3 velocity;
-    Vector3 localVelocity;
+    public Vector3 localVelocity;
     Vector3 lastVelocity;
     Vector3 localAngularVelocity;
     Vector3 localGForce;
@@ -60,7 +60,6 @@ public class Plane : MonoBehaviour
     {
         return velocity;
     }
-
 
 
     // Start is called before the first frame update

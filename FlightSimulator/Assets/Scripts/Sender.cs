@@ -110,25 +110,27 @@ public class Sender : MonoBehaviour
     public event Action<float> ThrustEvent;
     public event Action<float> YawEvent;
 
-    private GameObject playerPlane;
+    private RewardCalculator rewardCalculator;
+
+    public GameObject playerPlane;
     private Plane playerPlaneScript;
     Vector3 playerPlanePosition;
     Vector3 playerPlaneEulerRotation;
     Vector3 playerPlaneVelocity;
     float playerPlaneGForce;
 
-    private GameObject enemyPlane;
+    public GameObject enemyPlane;
     private Plane enemyPlaneScript;
     Vector3 enemyPlanePosition;
     Vector3 enemyPlaneEulerRotation;
     Vector3 enemyPlaneVelocity;
     float enemyPlaneGForce;
-    float reward;
 
     Vector3 relativePosition;
 
     void Start()
     {
+        rewardCalculator = gameObject.GetComponent<RewardCalculator>();
         playerPlane = GameObject.FindWithTag("PlayerPlane");
         enemyPlane = GameObject.FindWithTag("EnemyPlane");
         playerPlaneScript = playerPlane.GetComponent<Plane>();
@@ -191,7 +193,7 @@ public class Sender : MonoBehaviour
             byte[] buffer = new byte[1024];
             int bytesRead = client.GetStream().Read(buffer, 0, buffer.Length);
             string receivedData = Encoding.ASCII.GetString(buffer, 0, bytesRead);
-            Debug.Log("Received:" + receivedData);
+            // Debug.Log("Received:" + receivedData);
             return receivedData;
         }
         catch (Exception e)
@@ -225,7 +227,7 @@ public class Sender : MonoBehaviour
                 relativePosition.y,
                 relativePosition.z,
                 "CONGAME",
-                reward
+                rewardCalculator.reward
                 ); ;
 
         if (gameOver)
@@ -240,7 +242,7 @@ public class Sender : MonoBehaviour
             string json = JsonUtility.ToJson(data);
             jsonData = Encoding.ASCII.GetBytes(json);
             client.GetStream().Write(jsonData, 0, jsonData.Length);
-            Debug.Log("JSON Sent: " + json);
+            // Debug.Log("JSON Sent: " + json);
         }
     }
 
@@ -290,7 +292,6 @@ public class Sender : MonoBehaviour
             SendData();
             string keyboardData = ReceiveData();
             this.input = JsonUtility.FromJson<InputFromTcp>(keyboardData);
-            this.reward = RewardCalculator.CalculateReward(playerPlane.transform, enemyPlane.transform, enemyPlaneVelocity.z, enemyPlaneGForce);
             ProcessReceivedDataFromExternalKeyboardWhichWillEventuallyBeGivenFromOurDeepQLearningModel(this.input);
         }
     }
