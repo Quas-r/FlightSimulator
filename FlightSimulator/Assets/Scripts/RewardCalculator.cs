@@ -17,8 +17,7 @@ public class RewardCalculator : MonoBehaviour
     private const float aim120SidewinderShortDistance = 100f; // km
     private const float aim120SidewinderLongDistance = 300f; // km
 
-    public float reward;
-    private Sender senderScript;
+    private float reward;
     private GameObject playerPlane;
     private Plane playerPlaneScript;
     private GameObject enemyPlane;
@@ -66,10 +65,9 @@ public class RewardCalculator : MonoBehaviour
             speedDiffRewardFactor + 
             gForceRewardFactor + 
             altitudeSpeedDiscrepancyRewardFactor);
-        senderScript = gameObject.GetComponent<Sender>();
-        playerPlane = senderScript.playerPlane;
+        playerPlane = GameObject.FindWithTag("PlayerPlane");
+        enemyPlane = GameObject.FindWithTag("EnemyPlane");
         playerPlaneScript = playerPlane.GetComponent<Plane>();
-        enemyPlane = senderScript.enemyPlane;
         enemyPlaneScript = enemyPlane.GetComponent<Plane>();
     }
 
@@ -83,13 +81,13 @@ public class RewardCalculator : MonoBehaviour
 
         float cosAngleATA = Vector3.Dot(enemyPlane.transform.forward, los) / (enemyPlane.transform.forward.magnitude * los.magnitude);
         float ataAngle = Mathf.Rad2Deg * Mathf.Acos(Mathf.Clamp(cosAngleATA, -1f, 1f));
-        string log = "AA: " + aaAngle + ", ATA: " + ataAngle + ", Distance: " + distance + " | Rewards -> ";
+        string log = "AA: " + aaAngle + ", ATA: " + ataAngle + ", Dist: " + distance + ", Speed: " + enemyPlaneScript.localVelocity.z + " | Rewards -> ";
 
         float reward = 0f;
         float x;
 
         x = distanceRewardCurve.Evaluate(distance) * distanceRewardFactor;
-        log += "Distance: " + x + ", ";
+        log += "Dist: " + x + ", ";
         reward += x;
         x = aaAngleRewardCurve.Evaluate(aaAngle) * aaAngleRewardFactor;
         log += "AA: " + x + ", ";
@@ -102,7 +100,7 @@ public class RewardCalculator : MonoBehaviour
         reward += x;
         float altitudeSpeedDiscrepancy = optimumSpeedForAltitudeCurve.Evaluate(enemyPlane.transform.position.y) - enemyPlaneScript.localVelocity.z;
         x = altitudeSpeedDiscrepancyRewardCurve.Evaluate(altitudeSpeedDiscrepancy) * altitudeSpeedDiscrepancyRewardFactor;
-        log += "Altitude-speed disc: " + x + ", ";
+        log += "Alt-speed disc: " + x + ", ";
         reward += x;
         x = gForceRewardCurve.Evaluate(enemyPlaneScript.GetLocalGForce()) * gForceRewardFactor;
         reward += x;
@@ -111,6 +109,11 @@ public class RewardCalculator : MonoBehaviour
         Debug.Log(log);
 
         return reward * rewardNormalizingFactor;
+    }
+
+    public float GetReward()
+    {
+        return this.reward;
     }
 
     void FixedUpdate()

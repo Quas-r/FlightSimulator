@@ -80,6 +80,7 @@ public class Plane : MonoBehaviour
             sender.YawEvent += HandleYawInput;
         }
         rb = gameObject.GetComponent<Rigidbody>();
+        rb.velocity = new Vector3(0, 0, 100); 
 
         // Add very small torque to the wheels in order to work around a bug
         foreach (WheelCollider w in GetComponentsInChildren<WheelCollider>())

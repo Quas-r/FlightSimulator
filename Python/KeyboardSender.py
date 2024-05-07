@@ -102,6 +102,10 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             output_size = actions.__len__()
 
             model = DQNNetwork(input_size=input_size, output_size=output_size, device=device)
+            try:
+                model.load_model()
+            except FileNotFoundError:
+                print("No already existing model detected.")
 
             print(model)
 
@@ -112,7 +116,6 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
 
             while True:
 
-                print(f"Steps done: {model.steps_done}")
 
                 observation = State(device=device)  # TODO
 
@@ -130,8 +133,13 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
                 # Unity tarafındna veri alınacak
                 received_data = conn.recv(1024)
                 received_data = received_data.decode('utf-8')
+                if not received_data:
+                    model.save_model()
+                    print(f"Steps done: {model.steps_done}")
+                    print("Connection is being terminated...")
+                    break
                 data_dict = json.loads(received_data)
-                print("Received:", received_data)
+                # print("Received:", received_data)
 
                 # TODO
                 # Veri alindiktan sonra normalize edilmis degerler tutulacak statede
@@ -142,11 +150,11 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
                 # Unity tarafına veri gönderilecek action
                 data_to_send = json.dumps(inp)
                 conn.sendall(bytes(data_to_send, "utf-8"))
-                print("Sent:", data_to_send)
+                # print("Sent:", data_to_send)
 
                 observation.update_state(data_dict, device=device)
                 reward = data_dict["reward"]
-                print("Reward: ", reward)
+                # print("Reward: ", reward)
 
                 if data_dict["endGame"] == "CONGAME":
                     terminated = False
@@ -179,6 +187,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
                 if next_state is None:
                     # TODO
                     # Modelin ağırlıkları kaydedilecek
-                    # model.save_model()
+                    model.save_model()
+                    print(f"Steps done: {model.steps_done}")
                     print("Connection is being terminated...")
                     break

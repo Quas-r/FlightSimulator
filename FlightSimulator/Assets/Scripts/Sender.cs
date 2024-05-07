@@ -103,8 +103,7 @@ public class Sender : MonoBehaviour
     private string serverIp = "127.0.0.1"; // Python TCP sunucusunun IP adresi
     private int port = 8888; // TCP baðlantý noktasý
     public bool connected = false;
-    public InputFromTcp input = new InputFromTcp();
-    public bool responded = false;
+    public InputFromTcp input;
 
     public event Action<Vector2> RollPitchEvent;
     public event Action<float> ThrustEvent;
@@ -112,14 +111,14 @@ public class Sender : MonoBehaviour
 
     private RewardCalculator rewardCalculator;
 
-    public GameObject playerPlane;
+    private GameObject playerPlane;
     private Plane playerPlaneScript;
     Vector3 playerPlanePosition;
     Vector3 playerPlaneEulerRotation;
     Vector3 playerPlaneVelocity;
     float playerPlaneGForce;
 
-    public GameObject enemyPlane;
+    private GameObject enemyPlane;
     private Plane enemyPlaneScript;
     Vector3 enemyPlanePosition;
     Vector3 enemyPlaneEulerRotation;
@@ -227,7 +226,7 @@ public class Sender : MonoBehaviour
                 relativePosition.y,
                 relativePosition.z,
                 "CONGAME",
-                rewardCalculator.reward
+                rewardCalculator.GetReward()
                 ); ;
 
         if (gameOver)
