@@ -45,6 +45,7 @@ public class Plane : MonoBehaviour
     Vector3 velocity;
     public Vector3 localVelocity;
     Vector3 lastVelocity;
+    // TODO
     Vector3 localAngularVelocity;
     Vector3 localGForce;
     static float gForce;
@@ -118,6 +119,7 @@ public class Plane : MonoBehaviour
     {
         float target = 0;
         if (thrustInput > 0) target = 1;
+        // TODO
         thrustValue = Helper.MoveTo(thrustValue, target, thrustChangeSpeed * Mathf.Abs(thrustInput), dt);
     }
 
@@ -193,36 +195,6 @@ public class Plane : MonoBehaviour
         }
     }
 
-    public void DetectCollision()
-    {
-        RaycastHit hit;
-        float raycastDistance = 10.0f; 
-        Debug.Log("Bir şeye çarptın");
-
-        if (Physics.Raycast(transform.position, Vector3.down, out hit, raycastDistance))
-        {
-            if (hit.collider.CompareTag("Ground")) 
-            {
-                Debug.Log("Yere çarptın");
-                // StartNewGame();
-            }
-        }
-    }
-
-//     public void StartNewGame()
-//     {
-//         
-//         if (sender.connected)
-//         {
-//             sender.gameNotOver = false;
-//             while (!sender.gameNotOver); // Stupid
-//             sender.connected = false;
-//         }
-//         int activeSceneIndex = SceneManager.GetActiveScene().buildIndex;
-//         SceneManager.LoadScene(activeSceneIndex);
-//     }
-
-
     public float GetLocalGForce()
     {
         return gForce;
@@ -281,7 +253,6 @@ public class Plane : MonoBehaviour
         UpdateLift();
         UpdateDrag();
         UpdateSteering(Time.deltaTime);
-        // DetectCollision();
     }
 
 }
