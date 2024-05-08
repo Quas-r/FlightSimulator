@@ -5,6 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="820ac1fb-d3c4-43d8-9831-59e60145e3bc" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/../FlightSimulator/Assets/Scenes/Simulation.unity" beforeDir="false" afterPath="$PROJECT_DIR$/../FlightSimulator/Assets/Scenes/Simulation.unity" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../FlightSimulator/Assets/Scripts/UI/GForceInfo.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../FlightSimulator/Assets/Scripts/UI/GForceInfo.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -116,7 +118,7 @@
       <breakpoints>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/KeyboardSender.py</url>
-          <line>94</line>
+          <line>95</line>
           <option name="timeStamp" value="1" />
         </line-breakpoint>
       </breakpoints>

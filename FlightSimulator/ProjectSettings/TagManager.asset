@@ -7,6 +7,8 @@ TagManager:
   - Ground
   - PlayerPlane
   - EnemyPlane
+  - EnemyPlaneText
+  - PlayerPlaneText
   layers:
   - Default
   - TransparentFX

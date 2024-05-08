@@ -6,53 +6,72 @@ using TMPro;
 
 public class GForceInfo : MonoBehaviour
 {
-    public Text gForceText;
+    //public Text enemyPlaneGForceText;
+    public Text playerPlaneGForceText;
+
     private GameObject playerPlane;
-    private Plane planeScript;
-    private float gForceValue;
+    private Plane playerPlaneScript;
+
+    private GameObject enemyPlane;
+    private Plane enemyPlaneScript;
+
+    private float playerPlaneGForceValue;
+    private float enemyPlaneGForceValue;
+
     private float gForceThreshold = 5.0f;
+
     private float blinkDuration = 2.0f;
     private Color blinkColor = Color.red;
-    private bool isBlinking = false;
+
+    private bool isBlinkingPlayer = false;
+
     private float elapsedTime = 0f;
 
     void Start()
     {
         playerPlane = GameObject.FindWithTag("PlayerPlane");
-        planeScript = playerPlane.GetComponent<Plane>();
+        playerPlaneScript = playerPlane.GetComponent<Plane>();
+
+        //enemyPlane = GameObject.FindWithTag("EnemyPlane");
+        //enemyPlaneScript = enemyPlane.GetComponent<Plane>();
+
     } 
 
     public void FixedUpdate()
     {
-        gForceValue = planeScript.GetLocalGForce();
-        
+        playerPlaneGForceValue = playerPlaneScript.GetLocalGForce();
+        //enemyPlaneGForceValue = enemyPlaneScript.GetLocalGForce();
 
-        if (gForceText != null)
+        if (playerPlaneGForceText != null)
         {
-            gForceText.text = string.Format("G Force: {0:0.0} G", gForceValue);
+            playerPlaneGForceText.text = string.Format("Player Plane G Force: {0:0.0} G", playerPlaneGForceValue);
+            
         }
 
+        //if (enemyPlaneGForceText != null)
+        //{
+        //    enemyPlaneGForceText.text = string.Format("Enemy Plane G Force: {0:0.0} G", enemyPlaneGForceValue);
 
-        if (!isBlinking && gForceValue > gForceThreshold)
+        //}
+
+        if (!isBlinkingPlayer && playerPlaneGForceValue > gForceThreshold)
         {
             StartBlinking();
-
-
         }
-        else if (isBlinking && gForceValue <= gForceThreshold)
+        else if (isBlinkingPlayer && playerPlaneGForceValue <= gForceThreshold)
         {
             StopBlinking();
         }
 
 
-        if (isBlinking)
+        if (isBlinkingPlayer)
         {
             elapsedTime += Time.fixedDeltaTime;
 
             if (elapsedTime < blinkDuration)
             {
                 float lerpValue = Mathf.PingPong(elapsedTime, blinkDuration) / blinkDuration;
-                gForceText.color = Color.Lerp(Color.white, blinkColor, lerpValue);
+                playerPlaneGForceText.color = Color.Lerp(Color.white, blinkColor, lerpValue);
 
             }
             else
@@ -60,16 +79,29 @@ public class GForceInfo : MonoBehaviour
                 StopBlinking();
             }
         }
+
+
+        
     }
     private void StartBlinking()
     {
-        isBlinking = true;
-        elapsedTime = 0f;
+        
+       
+            isBlinkingPlayer = true;
+            elapsedTime = 0f;
+        
+       
     }
 
     private void StopBlinking()
     {
-        isBlinking = false;
-        gForceText.color = Color.white;
+        
+            isBlinkingPlayer = false;
+            playerPlaneGForceText.color = Color.white;
+        
+       
     }
+
+    
+  
 }
