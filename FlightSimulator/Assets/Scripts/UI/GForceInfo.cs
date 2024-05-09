@@ -6,7 +6,7 @@ using TMPro;
 
 public class GForceInfo : MonoBehaviour
 {
-    //public Text enemyPlaneGForceText;
+    public Text enemyPlaneGForceText;
     public Text playerPlaneGForceText;
 
     private GameObject playerPlane;
@@ -32,15 +32,15 @@ public class GForceInfo : MonoBehaviour
         playerPlane = GameObject.FindWithTag("PlayerPlane");
         playerPlaneScript = playerPlane.GetComponent<Plane>();
 
-        //enemyPlane = GameObject.FindWithTag("EnemyPlane");
-        //enemyPlaneScript = enemyPlane.GetComponent<Plane>();
+        enemyPlane = GameObject.FindWithTag("EnemyPlane");
+        enemyPlaneScript = enemyPlane.GetComponent<Plane>();
 
     } 
 
     public void FixedUpdate()
     {
         playerPlaneGForceValue = playerPlaneScript.GetLocalGForce();
-        //enemyPlaneGForceValue = enemyPlaneScript.GetLocalGForce();
+        enemyPlaneGForceValue = enemyPlaneScript.GetLocalGForce();
 
         if (playerPlaneGForceText != null)
         {
@@ -48,11 +48,11 @@ public class GForceInfo : MonoBehaviour
             
         }
 
-        //if (enemyPlaneGForceText != null)
-        //{
-        //    enemyPlaneGForceText.text = string.Format("Enemy Plane G Force: {0:0.0} G", enemyPlaneGForceValue);
+        if (enemyPlaneGForceText != null)
+        {
+            enemyPlaneGForceText.text = string.Format("Enemy Plane G Force: {0:0.0} G", enemyPlaneGForceValue);
 
-        //}
+        }
 
         if (!isBlinkingPlayer && playerPlaneGForceValue > gForceThreshold)
         {
