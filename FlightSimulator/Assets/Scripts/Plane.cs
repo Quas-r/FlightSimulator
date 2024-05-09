@@ -62,6 +62,15 @@ public class Plane : MonoBehaviour
         return velocity;
     }
 
+    public Vector3 GetAngularVelocity()
+    {
+        return localAngularVelocity;
+    }
+
+    public float GetThrustValue()
+    {
+        return thrustValue;
+    }
 
     // Start is called before the first frame update
     void Start()

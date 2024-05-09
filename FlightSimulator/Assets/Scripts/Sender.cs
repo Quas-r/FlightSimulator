@@ -47,6 +47,10 @@ public class DataToSend
             float relativePositionx,
             float relativePositiony,
             float relativePositionz,
+            float enemyAngularVelocityx,
+            float enemyAngularVelocityy,
+            float enemyAngularVelocityz,
+            float enemyThrustValue,
             string endGame,
             float reward
             )
@@ -70,6 +74,10 @@ public class DataToSend
         this.relativePositionx = relativePositionx;
         this.relativePositiony = relativePositiony;
         this.relativePositionz = relativePositionz;
+        this.enemyAngularVelocityx = enemyAngularVelocityx;
+        this.enemyAngularVelocityy = enemyAngularVelocityy;
+        this.enemyAngularVelocityz = enemyAngularVelocityz;
+        this.enemyThrustValue = enemyThrustValue;
         this.endGame = endGame;
         this.reward = reward;
     }
@@ -93,6 +101,10 @@ public class DataToSend
     public float relativePositionx;
     public float relativePositiony;
     public float relativePositionz;
+    public float enemyAngularVelocityx;
+    public float enemyAngularVelocityy;
+    public float enemyAngularVelocityz;
+    public float enemyThrustValue;
     public string endGame;
     public float reward;
 }
@@ -127,6 +139,10 @@ public class Sender : MonoBehaviour
 
     Vector3 relativePosition;
 
+    Vector3 enemyAngularVelocity;
+
+    private float enemyThrustValue;
+
     void Start()
     {
         rewardCalculator = gameObject.GetComponent<RewardCalculator>();
@@ -144,6 +160,9 @@ public class Sender : MonoBehaviour
         enemyPlaneEulerRotation = enemyPlane.transform.rotation.eulerAngles;
         enemyPlaneVelocity = enemyPlaneScript.GetVelocity();
         enemyPlaneGForce = enemyPlaneScript.GetLocalGForce();
+
+        enemyAngularVelocity = enemyPlaneScript.GetAngularVelocity();
+        enemyThrustValue = enemyPlaneScript.GetThrustValue();
 
         ConnectToServer();
     }
@@ -225,6 +244,10 @@ public class Sender : MonoBehaviour
                 relativePosition.x,
                 relativePosition.y,
                 relativePosition.z,
+                enemyAngularVelocity.x,
+                enemyAngularVelocity.y,
+                enemyAngularVelocity.z,
+                enemyThrustValue,
                 "CONGAME",
                 rewardCalculator.GetReward()
                 ); ;
@@ -285,6 +308,10 @@ public class Sender : MonoBehaviour
         enemyPlaneGForce = enemyPlaneScript.GetLocalGForce();
 
         relativePosition = playerPlanePosition - enemyPlanePosition;
+
+        enemyAngularVelocity = enemyPlaneScript.GetAngularVelocity();
+
+        enemyThrustValue = enemyPlaneScript.GetThrustValue();
 
         if (connected) 
         {
