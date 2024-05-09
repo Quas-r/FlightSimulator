@@ -48,7 +48,7 @@ public class Plane : MonoBehaviour
     // TODO
     Vector3 localAngularVelocity;
     Vector3 localGForce;
-    static float gForce;
+    float gForce;
     float angleOfAttack;
     float angleOfAttackYaw;
     Vector3 controlInput;
