@@ -13,6 +13,8 @@
 **/.DS_Store
 **/.vsconfig
 **/__pycache__
+**/.vscode
+**/.idea
 checkpoint.pth
 
 # MemoryCaptures can get excessive in size.
