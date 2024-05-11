@@ -1,4 +1,3 @@
-from pynput import keyboard
 import socket
 import json
 from copy import copy
@@ -6,7 +5,10 @@ from copy import copy
 import torch
 from DQNNetwork import DQNNetwork
 from action_space_dqn import ActionSpaceDQN
-from reward_normalization import min_max_normalize
+from plot_actions import plot_action_histogram
+from plot_reward_2 import plot_reward_of_all_time
+
+from plot_rewards import plot_rewards
 from state import State
 
 HOST = "127.0.0.1"
@@ -70,15 +72,14 @@ def process_keys_pressed(keys_pressed, inp) -> bool:
 
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
 
-    # listener = keyboard.Listener(on_press=on_press, on_release=on_release)
-    # listener.start()
-
     try:
         s.bind((HOST, PORT))
         s.listen()
         print("Server started...")
     except socket.error as e:
         print(f"Server startup error: {e}")
+
+    rewards_all_time = []
 
     while True:
         print("Waiting for connection...")
@@ -92,12 +93,13 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             else:
                 device = torch.device("cpu")
 
-            # model olusturma
+            rewards = []
+            actions_index = []
+
             actions = ActionSpaceDQN()
-            
-            # Change this please
-            state = State(device=device)  # TODO
-            observation = State(device=device)  # TODO
+
+            state = State(device=device)
+            observation = State(device=device)
 
             input_size = state.__len__()
             output_size = actions.__len__()
@@ -110,18 +112,13 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
 
             print(model)
 
-            # TODO
-            # Kayıtlı model var mı kontrol edilecek
-            # Model ağırlıkları yüklenecek
-            # model.load_model()
-
             while True:
 
-
-                observation = State(device=device)  # TODO
+                observation = State(device=device)
 
                 action, index = model.select_action(state.get_state_tensor(), actions, device=device)
                 action_index_tensor = torch.tensor([index], device=device)
+                actions_index.append(index)
 
                 inp = {
                     "thrust": action[0][0].item(),
@@ -130,11 +127,11 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
                     "toggleFlaps": 0
                 }
 
-                # TODO
-                # Unity tarafındna veri alınacak
                 received_data = conn.recv(1024)
                 received_data = received_data.decode('utf-8')
                 if not received_data:
+                    plot_rewards(rewards)
+                    # plot_action_histogram(actions_index, actions)
                     model.save_model()
                     print(f"Steps done: {model.steps_done}")
                     print("Connection is being terminated...")
@@ -147,8 +144,6 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
                 # bir kere yapalim bu degistirmeyi her input verildiginde degil
                 # state.apply_standard_scaling(data_dict)
 
-                # TODO
-                # Unity tarafına veri gönderilecek action
                 data_to_send = json.dumps(inp)
                 conn.sendall(bytes(data_to_send, "utf-8"))
                 # print("Sent:", data_to_send)
@@ -162,10 +157,9 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
                 else:
                     terminated = True
 
-                # TODO
-                # reward tensor haline getirilmeden once normalizasyon yapilabilir
-                # reward = min_max_normalize(reward)
                 reward = torch.tensor([reward], device=device)
+                rewards.append(reward)
+                rewards_all_time.append(reward)
 
                 if terminated:
                     next_state = None
@@ -186,9 +180,15 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
                 model.target_net.load_state_dict(target_net_state_dict)
 
                 if next_state is None:
+
                     # TODO
-                    # Modelin ağırlıkları kaydedilecek
+                    # hangi diagramlar cizdirilecek
+                    plot_rewards(rewards)
+                    # plot_action_histogram(actions_index, actions)
+
                     model.save_model()
                     print(f"Steps done: {model.steps_done}")
                     print("Connection is being terminated...")
                     break
+
+        plot_reward_of_all_time(rewards_all_time)

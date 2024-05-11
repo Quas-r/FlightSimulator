@@ -52,8 +52,16 @@ class DQNModel(nn.Module):
         self.output_layer = nn.Linear(128, output_size)
 
     def forward(self, x):
+
+        # TODO
+        # Ara katmanda egitimi hizlandirmak icin relu
+        # hatta leaky relu kullanabiliriz negatif girdiler kacmamis olur
+        # ya da tanh kullanabiliriz
+
         x = F.relu(self.input_layer(x))
         x = F.relu(self.hidden_layer(x))
+
+        # cikis katmaninda dogrusal olmasi daha iyi
         return self.output_layer(x)
 
 
