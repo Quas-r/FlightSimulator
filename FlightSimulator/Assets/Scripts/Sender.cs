@@ -4,9 +4,6 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using UnityEngine;
-using static UnityEditor.FilePathAttribute;
-using UnityEngine.UIElements;
-using Palmmedia.ReportGenerator.Core.Common;
 using UnityEngine.SceneManagement;
 //using System.Numerics;
 
@@ -28,17 +25,11 @@ public class InputFromTcp
 public class DataToSend
 {
     public DataToSend(
-            float playerPlanePositionx,
-            float playerPlanePositiony,
-            float playerPlanePositionz,
             float playerPlaneEulerRotationx,
             float playerPlaneEulerRotationy,
             float playerPlaneEulerRotationz,
             float playerPlaneForwardVelocity,
             float playerPlaneGForce,
-            float enemyPlanePositionx,
-            float enemyPlanePositiony,
-            float enemyPlanePositionz,
             float enemyPlaneEulerRotationx,
             float enemyPlaneEulerRotationy,
             float enemyPlaneEulerRotationz,
@@ -51,21 +42,18 @@ public class DataToSend
             float enemyAngularVelocityy,
             float enemyAngularVelocityz,
             float enemyThrustValue,
+            float aaAngle,
+            float ataAngle,
             string endGame,
             float reward
+          
             )
     {
-        this.playerPlanePositionx = playerPlanePositionx;
-        this.playerPlanePositiony = playerPlanePositiony;
-        this.playerPlanePositionz = playerPlanePositionz;
         this.playerPlaneEulerRotationx = playerPlaneEulerRotationx;
         this.playerPlaneEulerRotationy = playerPlaneEulerRotationy;
         this.playerPlaneEulerRotationz = playerPlaneEulerRotationz;
         this.playerPlaneForwardVelocity = playerPlaneForwardVelocity;
         this.playerPlaneGForce = playerPlaneGForce;
-        this.enemyPlanePositionx = enemyPlanePositionx;
-        this.enemyPlanePositiony = enemyPlanePositiony;
-        this.enemyPlanePositionz = enemyPlanePositionz;
         this.enemyPlaneEulerRotationx = enemyPlaneEulerRotationx;
         this.enemyPlaneEulerRotationy = enemyPlaneEulerRotationy;
         this.enemyPlaneEulerRotationz = enemyPlaneEulerRotationz;
@@ -78,21 +66,17 @@ public class DataToSend
         this.enemyAngularVelocityy = enemyAngularVelocityy;
         this.enemyAngularVelocityz = enemyAngularVelocityz;
         this.enemyThrustValue = enemyThrustValue;
+        this.aaAngle = aaAngle;
+        this.ataAngle = ataAngle;
         this.endGame = endGame;
         this.reward = reward;
     }
 
-    public float playerPlanePositionx;
-    public float playerPlanePositiony;
-    public float playerPlanePositionz;
     public float playerPlaneEulerRotationx;
     public float playerPlaneEulerRotationy;
     public float playerPlaneEulerRotationz;
     public float playerPlaneForwardVelocity;
     public float playerPlaneGForce;
-    public float enemyPlanePositionx;
-    public float enemyPlanePositiony;
-    public float enemyPlanePositionz;
     public float enemyPlaneEulerRotationx;
     public float enemyPlaneEulerRotationy;
     public float enemyPlaneEulerRotationz;
@@ -105,6 +89,8 @@ public class DataToSend
     public float enemyAngularVelocityy;
     public float enemyAngularVelocityz;
     public float enemyThrustValue;
+    public float aaAngle;
+    public float ataAngle;
     public string endGame;
     public float reward;
 }
@@ -225,9 +211,7 @@ public class Sender : MonoBehaviour
     {
         byte[] jsonData;
         DataToSend data = new DataToSend(
-                Helper.MinMaxNormalize(playerPlanePosition.x, Helper.GlobalPosMinXZ, Helper.GlobalPosMaxXZ),
-                Helper.MinMaxNormalize(playerPlanePosition.y, Helper.GlobalPosMinY, Helper.GlobalPosMaxY),
-                Helper.MinMaxNormalize(playerPlanePosition.z, Helper.GlobalPosMinXZ, Helper.GlobalPosMaxXZ),
+                
                 // TODO
                 // Euler angle çöz
                 Helper.MinMaxNormalize(playerPlaneEulerRotation.x, Helper.EulerMin, Helper.EulerMax),
@@ -235,9 +219,6 @@ public class Sender : MonoBehaviour
                 Helper.MinMaxNormalize(playerPlaneEulerRotation.z, Helper.EulerMin, Helper.EulerMax),
                 Helper.MinMaxNormalize(playerPlaneVelocity.z, Helper.SpeedMin, Helper.SpeedMax),
                 Helper.MinMaxNormalize(playerPlaneGForce, Helper.GForceMin, Helper.GForceMax),
-                Helper.MinMaxNormalize(enemyPlanePosition.x, Helper.GlobalPosMinXZ, Helper.GlobalPosMaxXZ),
-                Helper.MinMaxNormalize(enemyPlanePosition.y, Helper.GlobalPosMinXZ, Helper.GlobalPosMaxXZ),
-                Helper.MinMaxNormalize(enemyPlanePosition.z, Helper.GlobalPosMinXZ, Helper.GlobalPosMaxXZ),
                 Helper.MinMaxNormalize(enemyPlaneEulerRotation.x, Helper.EulerMin, Helper.EulerMax),
                 Helper.MinMaxNormalize(enemyPlaneEulerRotation.y, Helper.EulerMin, Helper.EulerMax),
                 Helper.MinMaxNormalize(enemyPlaneEulerRotation.z, Helper.EulerMin, Helper.EulerMax),
@@ -249,6 +230,8 @@ public class Sender : MonoBehaviour
                 Helper.MinMaxNormalize(enemyAngularVelocity.x, Helper.AngularVelMinX, Helper.AngularVelMaxX),
                 Helper.MinMaxNormalize(enemyAngularVelocity.y, Helper.AngularVelMinY, Helper.AngularVelMaxY),
                 Helper.MinMaxNormalize(enemyAngularVelocity.z, Helper.AngularVelMinZ, Helper.AngularVelMaxZ),
+                Helper.MinMaxNormalize(rewardCalculator.GetAAAngle(), Helper.LosAnglesMin, Helper.LosAnglesMax),
+                Helper.MinMaxNormalize(rewardCalculator.GetATAAngle(), Helper.LosAnglesMin, Helper.LosAnglesMax),
                 enemyThrustValue, // Already between 0 and 1
                 "CONGAME",
                 Helper.MinMaxNormalize(rewardCalculator.GetReward(), 

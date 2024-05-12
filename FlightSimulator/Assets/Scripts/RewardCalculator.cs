@@ -57,6 +57,19 @@ public class RewardCalculator : MonoBehaviour
 
     private float rewardFactorsTotal;
 
+    private float aaAngle;
+    private float ataAngle;
+
+    public float GetAAAngle()
+    {
+        return aaAngle;
+    }
+
+    public float GetATAAngle()
+    {
+        return ataAngle;
+    }
+
     void Start()
     {
         rewardFactorsTotal = aaAngleRewardFactor + 
@@ -77,10 +90,10 @@ public class RewardCalculator : MonoBehaviour
         float distance = los.magnitude;
 
         float cosAngleAA = Vector3.Dot(playerPlane.transform.forward, los) / (playerPlane.transform.forward.magnitude * los.magnitude);
-        float aaAngle = Mathf.Rad2Deg * Mathf.Acos(Mathf.Clamp(cosAngleAA, -1f, 1f));
+        aaAngle = Mathf.Rad2Deg * Mathf.Acos(Mathf.Clamp(cosAngleAA, -1f, 1f));
 
         float cosAngleATA = Vector3.Dot(enemyPlane.transform.forward, los) / (enemyPlane.transform.forward.magnitude * los.magnitude);
-        float ataAngle = Mathf.Rad2Deg * Mathf.Acos(Mathf.Clamp(cosAngleATA, -1f, 1f));
+        ataAngle = Mathf.Rad2Deg * Mathf.Acos(Mathf.Clamp(cosAngleATA, -1f, 1f));
         string log = "AA: " + aaAngle + ", ATA: " + ataAngle + ", Dist: " + distance + ", Speed: " + enemyPlaneScript.localVelocity.z + " | Rewards -> ";
 
         float reward = 0f;

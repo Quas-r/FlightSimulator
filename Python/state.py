@@ -4,7 +4,7 @@ from sklearn.preprocessing import MinMaxScaler, StandardScaler, RobustScaler
 
 class State(object):
     def __init__(self, device):
-        self.state = torch.zeros(17, device=device)
+        self.state = torch.zeros(19, device=device)
 
     def update_state(self, json_data, device):
 
@@ -40,6 +40,8 @@ class State(object):
         self.state[13:16] = torch.tensor([json_data['enemyAngularVelocityx'], json_data['enemyAngularVelocityy'], json_data['enemyAngularVelocityz']],
             device=device)
         self.state[16] = torch.tensor([json_data['enemyThrustValue']], device=device)
+        self.state[17] = torch.tensor([json_data['aaAngle']], device=device)
+        self.state[18] = torch.tensor([json_data['ataAngle']], device=device)
 
     def get_state_tensor(self):
         return self.state

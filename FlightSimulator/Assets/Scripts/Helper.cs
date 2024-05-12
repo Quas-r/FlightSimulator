@@ -2,10 +2,7 @@ using UnityEngine;
 
 public static class Helper
 {
-    public const float GlobalPosMinXZ = -5000;
-    public const float GlobalPosMaxXZ = 5000;
-    public const float GlobalPosMinY = 0;
-    public const float GlobalPosMaxY = 5000;
+    
     public const float RelativePosMinXZ = -3000;
     public const float RelativePosMaxXZ = 3000;
     public const float RelativePosMinY = 0;
@@ -22,6 +19,8 @@ public static class Helper
     public const float AngularVelMaxX = Mathf.PI / 6;
     public const float AngularVelMaxY = Mathf.PI / 12;
     public const float AngularVelMaxZ = 3 * Mathf.PI / 2;
+    public const float LosAnglesMin = 0;
+    public const float LosAnglesMax = 180;
 
     public static float MinMaxNormalize(float value, float min, float max)
     {
