@@ -225,32 +225,35 @@ public class Sender : MonoBehaviour
     {
         byte[] jsonData;
         DataToSend data = new DataToSend(
-                playerPlanePosition.x,
-                playerPlanePosition.y,
-                playerPlanePosition.z,
-                playerPlaneEulerRotation.x,
-                playerPlaneEulerRotation.y,
-                playerPlaneEulerRotation.z,
-                playerPlaneVelocity.z,
-                playerPlaneGForce,
-                enemyPlanePosition.x,
-                enemyPlanePosition.y,
-                enemyPlanePosition.z,
-                enemyPlaneEulerRotation.x,
-                enemyPlaneEulerRotation.y,
-                enemyPlaneEulerRotation.z,
-                enemyPlaneVelocity.z,
-                enemyPlaneGForce,
-                relativePosition.x,
-                relativePosition.y,
-                relativePosition.z,
-                enemyAngularVelocity.x,
-                enemyAngularVelocity.y,
-                enemyAngularVelocity.z,
-                enemyThrustValue,
+                Helper.MinMaxNormalize(playerPlanePosition.x, Helper.GlobalPosMinXZ, Helper.GlobalPosMaxXZ),
+                Helper.MinMaxNormalize(playerPlanePosition.y, Helper.GlobalPosMinY, Helper.GlobalPosMaxY),
+                Helper.MinMaxNormalize(playerPlanePosition.z, Helper.GlobalPosMinXZ, Helper.GlobalPosMaxXZ),
+                // TODO
+                // Euler angle çöz
+                Helper.MinMaxNormalize(playerPlaneEulerRotation.x, Helper.EulerMin, Helper.EulerMax),
+                Helper.MinMaxNormalize(playerPlaneEulerRotation.y, Helper.EulerMin, Helper.EulerMax),
+                Helper.MinMaxNormalize(playerPlaneEulerRotation.z, Helper.EulerMin, Helper.EulerMax),
+                Helper.MinMaxNormalize(playerPlaneVelocity.z, Helper.SpeedMin, Helper.SpeedMax),
+                Helper.MinMaxNormalize(playerPlaneGForce, Helper.GForceMin, Helper.GForceMax),
+                Helper.MinMaxNormalize(enemyPlanePosition.x, Helper.GlobalPosMinXZ, Helper.GlobalPosMaxXZ),
+                Helper.MinMaxNormalize(enemyPlanePosition.y, Helper.GlobalPosMinXZ, Helper.GlobalPosMaxXZ),
+                Helper.MinMaxNormalize(enemyPlanePosition.z, Helper.GlobalPosMinXZ, Helper.GlobalPosMaxXZ),
+                Helper.MinMaxNormalize(enemyPlaneEulerRotation.x, Helper.EulerMin, Helper.EulerMax),
+                Helper.MinMaxNormalize(enemyPlaneEulerRotation.y, Helper.EulerMin, Helper.EulerMax),
+                Helper.MinMaxNormalize(enemyPlaneEulerRotation.z, Helper.EulerMin, Helper.EulerMax),
+                Helper.MinMaxNormalize(enemyPlaneVelocity.z, Helper.SpeedMin, Helper.SpeedMax),
+                Helper.MinMaxNormalize(enemyPlaneGForce, Helper.GForceMin, Helper.GForceMax),
+                Helper.MinMaxNormalize(relativePosition.x, Helper.RelativePosMinXZ, Helper.RelativePosMaxXZ),
+                Helper.MinMaxNormalize(relativePosition.y, Helper.RelativePosMinY, Helper.RelativePosMaxY),
+                Helper.MinMaxNormalize(relativePosition.z, Helper.RelativePosMinXZ, Helper.RelativePosMaxXZ),
+                Helper.MinMaxNormalize(enemyAngularVelocity.x, Helper.AngularVelMinX, Helper.AngularVelMaxX),
+                Helper.MinMaxNormalize(enemyAngularVelocity.y, Helper.AngularVelMinY, Helper.AngularVelMaxY),
+                Helper.MinMaxNormalize(enemyAngularVelocity.z, Helper.AngularVelMinZ, Helper.AngularVelMaxZ),
+                enemyThrustValue, // Already between 0 and 1
                 "CONGAME",
-                rewardCalculator.GetReward()
-                ); ;
+                Helper.MinMaxNormalize(rewardCalculator.GetReward(), 
+                        -rewardCalculator.GetRewardFactorsTotal(), 
+                        rewardCalculator.GetRewardFactorsTotal()));
 
         if (gameOver)
         {

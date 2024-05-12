@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 705507994}
-  m_IndirectSpecularColor: {r: 0.44657898, g: 0.4964133, b: 0.5748178, a: 1}
+  m_IndirectSpecularColor: {r: 0.44657844, g: 0.49641222, b: 0.57481676, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -10978,7 +10978,7 @@ MonoBehaviour:
       outWeight: 0.79444104
     - serializedVersion: 3
       time: 0
-      value: 1
+      value: 0.5
       inSlope: 0
       outSlope: 0
       tangentMode: 34
@@ -10997,7 +10997,7 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  aaAngleRewardFactor: 5
+  aaAngleRewardFactor: 10
   ataAngleRewardCurve:
     serializedVersion: 2
     m_Curve:
@@ -11012,7 +11012,7 @@ MonoBehaviour:
       outWeight: 0.79444104
     - serializedVersion: 3
       time: 0
-      value: 1
+      value: 0.5
       inSlope: 0
       outSlope: 0
       tangentMode: 34
@@ -11031,7 +11031,7 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  ataAngleRewardFactor: 5
+  ataAngleRewardFactor: 10
   distanceRewardCurve:
     serializedVersion: 2
     m_Curve:
@@ -11054,7 +11054,7 @@ MonoBehaviour:
       inWeight: 1
       outWeight: 0.04108278
     - serializedVersion: 3
-      time: 1000
+      time: 300
       value: 1
       inSlope: 0.00000022539245
       outSlope: 0.00000022539245
@@ -11063,18 +11063,18 @@ MonoBehaviour:
       inWeight: 0.22230361
       outWeight: 0.14002536
     - serializedVersion: 3
-      time: 5000
-      value: -0.5
-      inSlope: -0.000375
-      outSlope: -0.000375
-      tangentMode: 34
+      time: 2000
+      value: -1
+      inSlope: -0.000055970857
+      outSlope: -0.000055970857
+      tangentMode: 0
       weightedMode: 0
-      inWeight: 0.33333334
+      inWeight: 0.11034668
       outWeight: 0
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  distanceRewardFactor: 5
+  distanceRewardFactor: 10
   speedDiffRewardCurve:
     serializedVersion: 2
     m_Curve:

@@ -48,7 +48,7 @@ class DQNModel(nn.Module):
     def __init__(self, input_size, output_size):
         super(DQNModel, self).__init__()
         self.input_layer = nn.Linear(input_size, 128)
-        self.hidden_layer = nn.Linear(128, 128)
+        self.hidden_layer1 = nn.Linear(128, 128)
         self.output_layer = nn.Linear(128, output_size)
 
     def forward(self, x):
@@ -59,7 +59,7 @@ class DQNModel(nn.Module):
         # ya da tanh kullanabiliriz
 
         x = F.relu(self.input_layer(x))
-        x = F.relu(self.hidden_layer(x))
+        x = F.relu(self.hidden_layer1(x))
 
         # cikis katmaninda dogrusal olmasi daha iyi
         return self.output_layer(x)

@@ -55,16 +55,16 @@ public class RewardCalculator : MonoBehaviour
     [SerializeField]
     private float altitudeSpeedDiscrepancyRewardFactor;
 
-    private float rewardNormalizingFactor;
+    private float rewardFactorsTotal;
 
     void Start()
     {
-        rewardNormalizingFactor = 1 / (aaAngleRewardFactor + 
+        rewardFactorsTotal = aaAngleRewardFactor + 
             ataAngleRewardFactor + 
             distanceRewardFactor + 
             speedDiffRewardFactor + 
             gForceRewardFactor + 
-            altitudeSpeedDiscrepancyRewardFactor);
+            altitudeSpeedDiscrepancyRewardFactor;
         playerPlane = GameObject.FindWithTag("PlayerPlane");
         enemyPlane = GameObject.FindWithTag("EnemyPlane");
         playerPlaneScript = playerPlane.GetComponent<Plane>();
@@ -104,16 +104,21 @@ public class RewardCalculator : MonoBehaviour
         reward += x;
         x = gForceRewardCurve.Evaluate(enemyPlaneScript.GetLocalGForce()) * gForceRewardFactor;
         reward += x;
-        log += "G-force: " + x + ", TOTAL: " + reward + ", NORMALIZED: " + reward * rewardNormalizingFactor;
+        log += "G-force: " + x + ", TOTAL: " + reward + ", NORMALIZED: " + Helper.MinMaxNormalize(reward, -rewardFactorsTotal, rewardFactorsTotal);
 
         Debug.Log(log);
 
-        return reward * rewardNormalizingFactor;
+        return reward;
     }
 
     public float GetReward()
     {
         return this.reward;
+    }
+
+    public float GetRewardFactorsTotal()
+    {
+        return this.rewardFactorsTotal;
     }
 
     void FixedUpdate()

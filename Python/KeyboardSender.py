@@ -130,8 +130,9 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
                 received_data = conn.recv(1024)
                 received_data = received_data.decode('utf-8')
                 if not received_data:
-                    plot_rewards(rewards)
+                    # plot_rewards(rewards)
                     # plot_action_histogram(actions_index, actions)
+                    plot_reward_of_all_time(rewards_all_time)
                     model.save_model()
                     print(f"Steps done: {model.steps_done}")
                     print("Connection is being terminated...")
@@ -183,7 +184,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
 
                     # TODO
                     # hangi diagramlar cizdirilecek
-                    plot_rewards(rewards)
+                    # plot_rewards(rewards)
                     # plot_action_histogram(actions_index, actions)
 
                     model.save_model()
@@ -191,4 +192,4 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
                     print("Connection is being terminated...")
                     break
 
-        plot_reward_of_all_time(rewards_all_time)
+        # plot_reward_of_all_time(rewards_all_time)

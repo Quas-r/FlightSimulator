@@ -2,6 +2,32 @@ using UnityEngine;
 
 public static class Helper
 {
+    public const float GlobalPosMinXZ = -5000;
+    public const float GlobalPosMaxXZ = 5000;
+    public const float GlobalPosMinY = 0;
+    public const float GlobalPosMaxY = 5000;
+    public const float RelativePosMinXZ = -3000;
+    public const float RelativePosMaxXZ = 3000;
+    public const float RelativePosMinY = 0;
+    public const float RelativePosMaxY = 5000;
+    public const float GForceMin = -5;
+    public const float GForceMax = 9;
+    public const float EulerMin = 0;
+    public const float EulerMax = 360;
+    public const float SpeedMin = 0;
+    public const float SpeedMax = 300;
+    public const float AngularVelMinX = - Mathf.PI / 6;
+    public const float AngularVelMinY = - Mathf.PI / 12;
+    public const float AngularVelMinZ = - 3 * Mathf.PI / 2;
+    public const float AngularVelMaxX = Mathf.PI / 6;
+    public const float AngularVelMaxY = Mathf.PI / 12;
+    public const float AngularVelMaxZ = 3 * Mathf.PI / 2;
+
+    public static float MinMaxNormalize(float value, float min, float max)
+    {
+        return (value - min) / (max - min);
+    }
+
     public static float MoveTo(float value, float target, float speed, float deltaTime, float min = 0, float max = 1)
     {
         float diff = target - value;
