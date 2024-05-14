@@ -17,7 +17,7 @@ EPS_START = 1
 EPS_END = 0.1
 EPS_DECAY = 1000
 TAU = 0.005
-LR = 1e-3
+LR = 1e-7
 
 Transition = namedtuple("Transition",
                         ("state", "action", "next_state", "reward"))
@@ -129,14 +129,14 @@ class DQNNetwork(object):
         torch.nn.utils.clip_grad_value_(self.policy_net.parameters(), 100)
         self.optimizer.step()
 
-    def save_model(self, filename="D:/FlightSimulator/FlightSimulator/Models/256_256_1e-3.pth"):
+    def save_model(self, filename="Models/256_256_1e-3.pth"):
         torch.save({
             'policy_state_dict': self.policy_net.state_dict(),
             'target_state_dict': self.target_net.state_dict(),
             'optimizer_state_dict': self.optimizer.state_dict(),
         }, filename)
 
-    def load_model(self, filename="D:/FlightSimulator/FlightSimulator/Models/256_256_1e-3.pth"):
+    def load_model(self, filename="Models/256_256_1e-3.pth"):
         checkpoint = torch.load(filename)
         self.policy_net.load_state_dict(checkpoint['policy_state_dict'])
         self.target_net.load_state_dict(checkpoint['target_state_dict'])
