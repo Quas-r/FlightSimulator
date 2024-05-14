@@ -140,11 +140,6 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
                 data_dict = json.loads(received_data)
                 # print("Received:", received_data)
 
-                # TODO
-                # Veri alindiktan sonra normalize edilmis degerler tutulacak statede
-                # bir kere yapalim bu degistirmeyi her input verildiginde degil
-                # state.apply_standard_scaling(data_dict)
-
                 data_to_send = json.dumps(inp)
                 conn.sendall(bytes(data_to_send, "utf-8"))
                 # print("Sent:", data_to_send)
@@ -191,5 +186,3 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
                     print(f"Steps done: {model.steps_done}")
                     print("Connection is being terminated...")
                     break
-
-        # plot_reward_of_all_time(rewards_all_time)

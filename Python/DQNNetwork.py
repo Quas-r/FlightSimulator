@@ -19,16 +19,8 @@ EPS_DECAY = 1000
 TAU = 0.005
 LR = 1e-3
 
-# if torch.backends.mps.is_available():
-#     device = torch.device("mps")
-# elif torch.cuda.is_available():
-#     device = torch.device("cuda")
-# else:
-#     device = torch.device("cpu")
-
 Transition = namedtuple("Transition",
                         ("state", "action", "next_state", "reward"))
-
 
 class ReplayBuffer(object):
     def __init__(self, capacity):
@@ -47,9 +39,10 @@ class ReplayBuffer(object):
 class DQNModel(nn.Module):
     def __init__(self, input_size, output_size):
         super(DQNModel, self).__init__()
-        self.input_layer = nn.Linear(input_size, 128)
-        self.hidden_layer1 = nn.Linear(128, 128)
-        self.output_layer = nn.Linear(128, output_size)
+        self.input_layer = nn.Linear(input_size, 256)
+        self.hidden_layer1 = nn.Linear(256, 256)
+        self.hidden_layer2 = nn.Linear(256,256)
+        self.output_layer = nn.Linear(256, output_size)
 
     def forward(self, x):
 
@@ -60,6 +53,7 @@ class DQNModel(nn.Module):
 
         x = F.relu(self.input_layer(x))
         x = F.relu(self.hidden_layer1(x))
+        x = F.relu(self.hidden_layer2(x))
 
         # cikis katmaninda dogrusal olmasi daha iyi
         return self.output_layer(x)
@@ -123,7 +117,6 @@ class DQNNetwork(object):
 
         next_state_values[non_final_mask] = self.target_net(non_final_next_states).max(1).values
 
-        # Compute the expected Q values
         expected_state_action_values = (next_state_values * GAMMA) + reward_batch
 
         criterion = nn.SmoothL1Loss()
@@ -133,104 +126,20 @@ class DQNNetwork(object):
 
         loss.backward()
 
-        # In-place gradient clipping
         torch.nn.utils.clip_grad_value_(self.policy_net.parameters(), 100)
         self.optimizer.step()
 
-    def save_model(self, filename="checkpoint.pth"):
+    def save_model(self, filename="D:/FlightSimulator/FlightSimulator/Models/256_256_1e-3.pth"):
         torch.save({
             'policy_state_dict': self.policy_net.state_dict(),
             'target_state_dict': self.target_net.state_dict(),
             'optimizer_state_dict': self.optimizer.state_dict(),
         }, filename)
 
-    def load_model(self, filename="checkpoint.pth"):
+    def load_model(self, filename="D:/FlightSimulator/FlightSimulator/Models/256_256_1e-3.pth"):
         checkpoint = torch.load(filename)
         self.policy_net.load_state_dict(checkpoint['policy_state_dict'])
         self.target_net.load_state_dict(checkpoint['target_state_dict'])
         self.optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
         self.target_net.eval()
         self.policy_net.train()
-
-# def train_model(state, model, actions):  # bu kullanilmayabilir
-#
-#     action = model.select_action(state, actions)
-#
-#     observation = None
-#     reward = None
-#     terminated = None
-#
-#     reward = torch.tensor([reward], device=device)
-#
-#     if terminated:
-#         next_state = None
-#     else:
-#         next_state = torch.tensor(observation, dtype=torch.float32, device=device).unsqueeze(0)
-#
-#     model.buffer.push(state, action, next_state, reward)
-#
-#     state = next_state
-#
-#     model.optimize_model()
-#
-#     target_net_state_dict = model.target_net.state_dict()
-#     policy_net_state_dict = model.policy_net.state_dict()
-#     for key in policy_net_state_dict:
-#         target_net_state_dict[key] = policy_net_state_dict[key] * TAU + target_net_state_dict[key] * (1 - TAU)
-#     model.target_net.load_state_dict(target_net_state_dict)
-#
-#     return state
-#
-#
-# def calculate_degrees(civilian_position, civilian_vector, enemy_position, enemy_vector):
-#
-#     los = civilian_position - enemy_position
-#
-#     distance = np.linalg.norm(los)
-#
-#     cos_angle_aa = np.dot(civilian_vector, los) / (np.linalg.norm(civilian_vector) * np.linalg.norm(los))
-#     aa_angle = np.degrees(np.arccos(np.clip(cos_angle_aa, -1.0, 1.0)))
-#
-#     cos_angle_ata = np.dot(enemy_vector, -los) / (np.linalg.norm(enemy_vector) * np.linalg.norm(los))
-#     ata_angle = np.degrees(np.arccos(np.clip(cos_angle_ata, -1.0, 1.0)))
-#
-#     return aa_angle, ata_angle, distance
-#
-#
-# def calculate_reward(aa, ata, distance, velocity, g_force, enemy_position):
-#
-#     reward = 0
-#
-#     high_altitude_speed = 925  # km/s
-#     low_and_medium_altitude_speed = (800, 900)  # km/s
-#     high_altitude_limit = 12200  # m
-#
-#     max_g_force = 7
-#
-#     aim_120_sidewinder_low_distance = 1000  # km
-#     aim_120_sidewinder_high_distance = 34500  # km
-#
-#     if distance < 0.1:
-#         reward += -10
-#     elif aim_120_sidewinder_low_distance <= distance <= aim_120_sidewinder_high_distance:
-#         reward += 10
-#         if abs(aa) < 0 and abs(ata) < 0:
-#             reward += 10
-#     elif aim_120_sidewinder_high_distance < distance:
-#         if abs(aa) < 60 and abs(ata) < 30:
-#             reward += 2
-#         elif abs(ata) > 120 and abs(aa) > 150:
-#             reward += -2
-#
-#     if (enemy_position[1] < high_altitude_limit and
-#             low_and_medium_altitude_speed[0] < velocity < low_and_medium_altitude_speed[1]):
-#         reward += 1
-#     elif enemy_position[1] >= high_altitude_limit and high_altitude_speed == velocity:
-#         reward += 1
-#     else:
-#         reward -= 1
-#
-#     if g_force <= max_g_force:
-#         reward += 5
-#
-#     return reward
